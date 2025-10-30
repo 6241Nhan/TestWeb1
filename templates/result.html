@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả khách sạn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #fff3e0);
+            min-height: 100vh;
+            overflow-x: hidden;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            animation: zoomIn 0.5s ease-in-out;
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-custom {
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+
+            .btn-custom:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 15px rgba(255,138,0,0.6);
+            }
+    </style>
+</head>
+
+<body class="container py-5">
+
+    <h2 class="text-center mb-4">✨ Danh sách khách sạn phù hợp ✨</h2>
+
+    <!-- Bộ lọc -->
+    <form method="get" action="/recommend" class="filter-bar">
+        <div class="row align-items-center">
+            <div class="col-md-2">
+                <label class="form-label">⭐ Sao tối thiểu</label>
+                <input type="number" name="stars" min="1" max="5" class="form-control" placeholder="VD: 4">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">🍽 Buffet</label>
+                <input type="checkbox" name="buffet" class="form-check-input">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">🏊 Bể bơi</label>
+                <input type="checkbox" name="pool" class="form-check-input">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">🌊 Gần biển</label>
+                <input type="checkbox" name="sea" class="form-check-input">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">🌅 View biển</label>
+                <input type="checkbox" name="view" class="form-check-input">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Sắp xếp theo</label>
+                <select name="sort" class="form-select">
+                    <option value="">-- Không --</option>
+                    <option value="asc">💵 Giá tăng dần</option>
+                    <option value="desc">💰 Giá giảm dần</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-custom px-5">🔍 Lọc kết quả</button>
+        </div>
+    </form>
+
+    <div class="row">
+        {% for hotel in hotels %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow">
+                <img src="{{ hotel.image_url }}" class="card-img-top" alt="{{ hotel.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ hotel.name }}</h5>
+                    <p class="card-text">
+                        📍 {{ hotel.city }}<br>
+                        💰 {{ hotel.price }} VND<br>
+                        ⭐ {{ hotel.stars }} sao — 🌟 {{ hotel.rating }} điểm<br>
+                        💬 {{ hotel.review }}
+                    </p>
+                    <a href="{{ url_for('hotel_detail', name=hotel.name) }}" class="btn btn-custom w-100">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if hotels|length == 0 %}
+    <div class="alert alert-warning text-center mt-4">
+        😢 Không tìm thấy khách sạn nào phù hợp với yêu cầu của bạn.
+    </div>
+    {% endif %}
+</body>
+</html>
