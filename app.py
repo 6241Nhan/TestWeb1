@@ -213,13 +213,18 @@ def add_review(name):
 # === TRANG ĐẶT PHÒNG ===
 @app.route('/booking/<name>/<room_type>', methods=['GET', 'POST'])
 def booking(name, room_type):
-    hotel_data = hotels[hotels['name'] == name]
+    # Đọc dữ liệu khách sạn
+    df_hotels = pd.read_csv(HOTELS_CSV, encoding='utf-8-sig')
+    hotel_data = df_hotels[df_hotels['name'] == name]
+
     if hotel_data.empty:
-        return "<h3>Không tìm thấy khách sạn!</h3>", 404
+        flash("Không tìm thấy khách sạn!", "danger")
+        return redirect(url_for('home'))
 
     hotel = map_hotel_row(hotel_data.iloc[0].to_dict())
 
     if request.method == 'POST':
+        # ======= ĐỌC FORM =======
         info = {
             "hotel_name": name,
             "room_type": room_type,
@@ -232,18 +237,33 @@ def booking(name, room_type):
             "checkin_date": request.form['checkin'],
             "nights": 1,
             "special_requests": request.form.get('note', ''),
-            "booking_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            "booking_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "status": "Chờ xác nhận"
         }
 
-        # ✅ Ghi an toàn
-        try:
-            df = pd.read_csv(BOOKINGS_CSV, encoding="utf-8-sig")
-        except FileNotFoundError:
-            df = pd.DataFrame(columns=info.keys())
-        df = pd.concat([df, pd.DataFrame([info])], ignore_index=True)
-        df.to_csv(BOOKINGS_CSV, index=False, encoding="utf-8-sig")
+        # ======= KIỂM TRA PHÒNG =======
+        idx = df_hotels.index[df_hotels['name'] == name].tolist()[0]
+        rooms_available = int(df_hotels.at[idx, 'rooms_available']) if 'rooms_available' in df_hotels.columns else 1
 
-        # ✅ Gửi email cho khách
+        if rooms_available <= 0:
+            flash("Khách sạn này đã hết phòng!", "warning")
+            return redirect(url_for('hotel_detail', name=name))
+
+        # ======= TRỪ PHÒNG & CẬP NHẬT TRẠNG THÁI =======
+        df_hotels.at[idx, 'rooms_available'] = rooms_available - 1
+        df_hotels.at[idx, 'status'] = 'còn' if rooms_available - 1 > 0 else 'hết'
+        df_hotels.to_csv(HOTELS_CSV, index=False, encoding='utf-8-sig')
+
+        # ======= GHI BOOKING =======
+        try:
+            df_book = pd.read_csv(BOOKINGS_CSV, encoding='utf-8-sig')
+        except FileNotFoundError:
+            df_book = pd.DataFrame(columns=info.keys())
+
+        df_book = pd.concat([df_book, pd.DataFrame([info])], ignore_index=True)
+        df_book.to_csv(BOOKINGS_CSV, index=False, encoding='utf-8-sig')
+
+        # ======= GỬI EMAIL CHO KHÁCH =======
         if info["email"]:
             try:
                 msg_user = Message(
@@ -251,61 +271,22 @@ def booking(name, room_type):
                     recipients=[info["email"]]
                 )
                 msg_user.html = f"""
-                <div style="font-family: Arial, sans-serif; color:#333;">
-                    <h2 style="color:#e52e71;">🎉 Cảm ơn {info['user_name']}!</h2>
-                    <p>Bạn đã đặt phòng thành công tại <b>{info['hotel_name']}</b>.</p>
-                    <ul>
-                        <li><b>Loại phòng:</b> {info['room_type']}</li>
-                        <li><b>Giá:</b> {info['price']:,} VND</li>
-                        <li><b>Ngày nhận phòng:</b> {info['checkin_date']}</li>
-                        <li><b>Số lượng:</b> {info['num_adults']} người lớn, {info['num_children']} trẻ em</li>
-                        <li><b>Ghi chú:</b> {info['special_requests'] or "Không có"}</li>
-                    </ul>
-                    <p>🕓 Thời gian đặt: {info['booking_time']}</p>
-                    <p>📞 Hotline hỗ trợ: <b>0123 456 789</b></p>
-                    <br>
-                    <p>💌 Cảm ơn bạn đã tin tưởng sử dụng dịch vụ của <b>Hotel Pinder</b>.</p>
-                </div>
+                <h3>Cảm ơn {info['user_name']}!</h3>
+                <p>Bạn đã đặt phòng <b>{info['room_type']}</b> tại <b>{info['hotel_name']}</b>.</p>
+                <p>Giá: {info['price']:,} VND<br>
+                   Ngày nhận phòng: {info['checkin_date']}<br>
+                   Người lớn: {info['num_adults']} - Trẻ em: {info['num_children']}</p>
+                <p>Ghi chú: {info['special_requests'] or 'Không có'}</p>
                 """
                 mail.send(msg_user)
-                print(f"📧 Đã gửi email xác nhận tới {info['email']}")
             except Exception as e:
-                print(f"⚠️ Lỗi gửi email cho khách: {e}")
+                print("⚠️ Lỗi gửi mail:", e)
 
-        # ✅ Gửi thông báo cho admin HotelPinder
-        try:
-            msg_admin = Message(
-                subject=f"🔔 Đơn đặt phòng mới tại {info['hotel_name']}",
-                recipients=["hotelpinder@gmail.com"]
-            )
-            msg_admin.html = f"""
-            <div style="font-family: Arial, sans-serif; color:#333;">
-                <h2 style="color:#2b6cb0;">🔔 Có đơn đặt phòng mới!</h2>
-                <p>Khách hàng <b>{info['user_name']}</b> vừa đặt phòng tại <b>{info['hotel_name']}</b>.</p>
-                <ul>
-                    <li><b>Email:</b> {info['email']}</li>
-                    <li><b>Điện thoại:</b> {info['phone']}</li>
-                    <li><b>Loại phòng:</b> {info['room_type']}</li>
-                    <li><b>Giá:</b> {info['price']:,} VND</li>
-                    <li><b>Ngày nhận phòng:</b> {info['checkin_date']}</li>
-                    <li><b>Số người:</b> {info['num_adults']} NL, {info['num_children']} TE</li>
-                    <li><b>Ghi chú:</b> {info['special_requests'] or "Không có"}</li>
-                </ul>
-                <p>🕓 Thời gian đặt: {info['booking_time']}</p>
-                <hr>
-                <p>📢 Vui lòng xác nhận đơn đặt phòng này trong hệ thống quản lý HotelPinder.</p>
-            </div>
-            """
-            mail.send(msg_admin)
-            print("📨 Đã gửi email thông báo cho admin HotelPinder.")
-        except Exception as e:
-            print(f"⚠️ Lỗi gửi email admin: {e}")
-
+        flash(f"🎉 Đặt phòng tại {name} thành công!", "success")
         return render_template('success.html', info=info)
 
+    # ======= METHOD GET =======
     return render_template('booking.html', hotel=hotel, room_type=room_type)
-
-
 
 # === LỊCH SỬ ĐẶT PHÒNG ===
 @app.route('/history', methods=['GET', 'POST'])
@@ -523,3 +504,4 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
