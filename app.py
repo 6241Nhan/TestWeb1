@@ -1,4 +1,3 @@
-﻿import pandas as pd
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import re
@@ -6,8 +5,7 @@ from datetime import datetime
 from flask_mail import Mail, Message  # thêm thư viện mail
 import tempfile
 from flask import session, flash
-
-
+import pandas as pd
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
@@ -319,7 +317,60 @@ def booking(name, room_type):
 
     return render_template('booking.html', hotel=hotel, room_type=room_type)
 
+@app.route('/book', methods=['POST'])
+def book_room():
+    hotel_name = request.form.get('hotel_name')
+    customer_name = request.form.get('name')
+    phone = request.form.get('phone')
+    checkin_date = request.form.get('checkin_date')
 
+    # Đọc dữ liệu khách sạn
+    hotels = pd.read_csv('hotels.csv')
+
+    # Tìm khách sạn tương ứng
+    if hotel_name not in hotels['name'].values:
+        flash("❌ Hotel not found!")
+        return redirect(url_for('home'))
+
+    # Lấy chỉ số hàng của khách sạn đó
+    idx = hotels[hotels['name'] == hotel_name].index[0]
+
+    # Lấy số phòng còn
+    rooms_left = hotels.loc[idx, 'rooms_left']
+
+    # Xử lý trường hợp NaN hoặc lỗi dữ liệu
+    if pd.isna(rooms_left):
+        rooms_left = 0
+
+    # Nếu còn phòng thì cho phép đặt
+    if int(rooms_left) > 0:
+        # Giảm số phòng còn lại
+        hotels.loc[idx, 'rooms_left'] = int(rooms_left) - 1
+
+        # Lưu lại hotels.csv
+        hotels.to_csv('hotels.csv', index=False)
+
+        # Ghi thêm vào bookings.csv
+        booking = pd.DataFrame([{
+            'hotel_name': hotel_name,
+            'customer_name': customer_name,
+            'phone': phone,
+            'checkin_date': checkin_date
+        }])
+
+        try:
+            existing = pd.read_csv('bookings.csv')
+            bookings = pd.concat([existing, booking], ignore_index=True)
+        except FileNotFoundError:
+            bookings = booking
+
+        bookings.to_csv('bookings.csv', index=False)
+
+        flash(f"✅ Booking confirmed for {hotel_name}!")
+        return redirect(url_for('home'))
+    else:
+        flash(f"❌ Sorry, {hotel_name} is fully booked.")
+        return redirect(url_for('home'))
 
 # === LỊCH SỬ ĐẶT PHÒNG ===
 @app.route('/history', methods=['GET', 'POST'])
@@ -520,5 +571,6 @@ def send_test_mail():
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
