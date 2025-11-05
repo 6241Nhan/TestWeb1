@@ -12,11 +12,17 @@ from flask import session, flash
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
 
+# --- Mail configuration ---
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your_email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your_password'
+app.config['MAIL_USERNAME'] = 'your_email@gmail.com'  # Thay bằng email của bạn
+app.config['MAIL_PASSWORD'] = 'your_app_password'     # Dùng App Password, không phải mật khẩu thật
+app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
+
+mail = Mail(app)
+
+
 
 # 📁 Đường dẫn đến các file dữ liệu
 DATA_FOLDER = os.path.join(os.getcwd(), 'data')
@@ -499,8 +505,20 @@ def update_hotel_status(name, status):
         flash(f"Lỗi khi cập nhật trạng thái: {e}", "danger")
     return redirect(url_for('admin_hotels'))
 
+# send test mail
+
+@app.route('/send_test_mail')
+def send_test_mail():
+    msg = Message(
+        subject="Hello from Flask",
+        recipients=["receiver@example.com"],  # email người nhận
+        body="This is a test email sent from Flask-Mail."
+    )
+    mail.send(msg)
+    return "✅ Email sent successfully!"
 
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
