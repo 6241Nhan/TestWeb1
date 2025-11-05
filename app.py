@@ -1,4 +1,5 @@
 import pandas as pd
+from filelock import FileLock, Timeout
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import re
@@ -211,6 +212,109 @@ def add_review(name):
 
 
 # === TRANG ĐẶT PHÒNG ===
+@app.route('/booking', methods=['GET', 'POST'])
+def booking():
+    """
+    1) GET: render form (nếu bạn dùng page riêng).
+    2) POST: xử lý đặt phòng:
+       - kiểm tra rooms_left
+       - giảm rooms_left xuống 1
+       - append booking vào bookings.csv
+    """
+    if request.method == 'GET':
+        # nếu bạn có page riêng cho booking, trả về template kèm thông tin hotel
+        hotel_name = request.args.get('hotel_name')  # or hotel_id
+        hotels = pd.read_csv('hotels.csv').fillna({'rooms_left': 0})
+        hotel = None
+        if hotel_name:
+            matched = hotels[hotels['name'] == hotel_name]
+            if not matched.empty:
+                hotel = matched.iloc[0].to_dict()
+        return render_template('booking.html', hotel=hotel)
+
+    # POST xử lý đặt phòng
+    hotel_name = request.form.get('hotel_name') or request.form.get('hotel')
+    customer_name = request.form.get('name') or request.form.get('customer_name')
+    phone = request.form.get('phone')
+    email = request.form.get('email', '')
+    checkin_date = request.form.get('checkin_date', '')
+    adults = request.form.get('adults', '1')
+    children = request.form.get('children', '0')
+    notes = request.form.get('notes', '')
+
+    # basic validation
+    if not hotel_name or not customer_name or not phone:
+        flash("Please provide hotel, your name and phone number.", "danger")
+        return redirect(request.referrer or url_for('home'))
+
+    hotels_csv = 'hotels.csv'
+    bookings_csv = 'bookings.csv'
+    lock_path = hotels_csv + '.lock'
+
+    # dùng file lock để tránh race condition
+    lock = FileLock(lock_path, timeout=5)  # 5s timeout
+    try:
+        with lock:
+            # đọc hotels.csv mới nhất
+            hotels = pd.read_csv(hotels_csv)
+
+            # đảm bảo cột rooms_left tồn tại
+            if 'rooms_left' not in hotels.columns:
+                hotels['rooms_left'] = 0
+
+            # locate hotel row
+            matched = hotels[hotels['name'] == hotel_name]
+            if matched.empty:
+                flash("Hotel not found.", "danger")
+                return redirect(request.referrer or url_for('home'))
+
+            idx = matched.index[0]
+            rooms_left_val = hotels.at[idx, 'rooms_left']
+
+            # handle NaN or string
+            try:
+                rooms_left = int(float(rooms_left_val))
+            except Exception:
+                rooms_left = 0
+
+            if rooms_left <= 0:
+                flash(f"Sorry, {hotel_name} is fully booked.", "warning")
+                return redirect(request.referrer or url_for('home'))
+
+            # giảm 1 phòng
+            hotels.at[idx, 'rooms_left'] = rooms_left - 1
+
+            # Lưu lại hotels.csv
+            hotels.to_csv(hotels_csv, index=False)
+
+            # Append booking vào bookings.csv
+            booking_row = {
+                'hotel_name': hotel_name,
+                'customer_name': customer_name,
+                'phone': phone,
+                'email': email,
+                'checkin_date': checkin_date,
+                'adults': adults,
+                'children': children,
+                'notes': notes
+            }
+            # nếu chưa tồn tại file bookings.csv -> tạo mới
+            try:
+                existing = pd.read_csv(bookings_csv)
+                bookings = pd.concat([existing, pd.DataFrame([booking_row])], ignore_index=True)
+            except FileNotFoundError:
+                bookings = pd.DataFrame([booking_row])
+
+            bookings.to_csv(bookings_csv, index=False)
+
+    except Timeout:
+        flash("Server busy, please try again in a few seconds.", "warning")
+        return redirect(request.referrer or url_for('home'))
+
+    flash(f"Booking confirmed for {hotel_name}! We will contact you soon.", "success")
+    # redirect tới trang xác nhận hoặc trang chi tiết khách sạn
+    return redirect(url_for('payment_success', hotel_name=hotel_name))
+
 @app.route('/booking/<name>/<room_type>', methods=['GET', 'POST'])
 def booking(name, room_type):
     hotel_data = hotels[hotels['name'] == name]
@@ -500,3 +604,4 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
