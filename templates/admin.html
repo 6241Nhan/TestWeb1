@@ -1,0 +1,61 @@
+﻿{% extends "layout_admin.html" %}
+{% block title %}Tổng quan - Admin{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">📊 Bảng điều khiển Admin</h2>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card text-center shadow">
+            <div class="card-body">
+                <h5 class="card-title">Tổng số khách sạn</h5>
+                <p class="display-5 text-primary fw-bold">{{ total_hotels }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center shadow">
+            <div class="card-body">
+                <h5 class="card-title">Tổng số đặt phòng</h5>
+                <p class="display-5 text-success fw-bold">{{ total_bookings }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center shadow">
+            <div class="card-body">
+                <h5 class="card-title">Đánh giá khách hàng</h5>
+                <p class="display-5 text-warning fw-bold">{{ total_reviews }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h4>📅 Đặt phòng gần đây</h4>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Khách sạn</th>
+                <th>Khách hàng</th>
+                <th>Email</th>
+                <th>Ngày nhận phòng</th>
+                <th>Thời gian đặt</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in latest_bookings %}
+            <tr>
+                <td>{{ b.hotel_name }}</td>
+                <td>{{ b.user_name }}</td>
+                <td>{{ b.email }}</td>
+                <td>{{ b.checkin_date }}</td>
+                <td>{{ b.booking_time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

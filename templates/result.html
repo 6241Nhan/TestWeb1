@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -7,25 +7,59 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
+        #bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+
+        #video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(2px);
+            z-index: -1;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #e0f7fa, #fff3e0);
+            background: linear-gradient(270deg, #e0f7fa, #fff3e0, #fce4ec);
+            background-size: 600% 600%;
+            animation: moveBg 18s ease infinite;
             min-height: 100vh;
             overflow-x: hidden;
-            animation: fadeIn 1s ease-in;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+        @keyframes moveBg {
+            0% {
+                background-position: 0% 50%;
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
             }
         }
+
+        /* Navbar */
+        nav {
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+        }
+
+            nav a {
+                color: #fff !important;
+                font-weight: 600;
+            }
 
         .filter-bar {
             background: white;
@@ -78,76 +112,94 @@
                 transform: scale(1.05);
                 box-shadow: 0 0 15px rgba(255,138,0,0.6);
             }
+
+        h2 {
+            color: #e52e71;
+            font-weight: 700;
+            text-align: center;
+            margin: 40px 0 30px;
+        }
     </style>
 </head>
 
-<body class="container py-5">
+<body>
+    <!-- 🌈 Video background -->
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="{{ url_for('static', filename='videos/bg1.mp4') }}" type="video/mp4">
+    </video>
 
-    <h2 class="text-center mb-4">✨ Danh sách khách sạn phù hợp ✨</h2>
-
-    <!-- Bộ lọc -->
-    <form method="get" action="/recommend" class="filter-bar">
-        <div class="row align-items-center">
-            <div class="col-md-2">
-                <label class="form-label">⭐ Sao tối thiểu</label>
-                <input type="number" name="stars" min="1" max="5" class="form-control" placeholder="VD: 4">
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label">🍽 Buffet</label>
-                <input type="checkbox" name="buffet" class="form-check-input">
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label">🏊 Bể bơi</label>
-                <input type="checkbox" name="pool" class="form-check-input">
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label">🌊 Gần biển</label>
-                <input type="checkbox" name="sea" class="form-check-input">
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label">🌅 View biển</label>
-                <input type="checkbox" name="view" class="form-check-input">
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label">Sắp xếp theo</label>
-                <select name="sort" class="form-select">
-                    <option value="">-- Không --</option>
-                    <option value="asc">💵 Giá tăng dần</option>
-                    <option value="desc">💰 Giá giảm dần</option>
-                </select>
+    <!-- 🔹 Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">🏨 HotelFinder</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about">Giới thiệu</a></li>
+                </ul>
             </div>
         </div>
+    </nav>
 
-        <div class="text-center mt-3">
-            <button type="submit" class="btn btn-custom px-5">🔍 Lọc kết quả</button>
-        </div>
-    </form>
+    <div class="container py-5">
+        <h2>✨ Danh sách khách sạn phù hợp ✨</h2>
 
-    <div class="row">
-        {% for hotel in hotels %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow">
-                <img src="{{ hotel.image_url }}" class="card-img-top" alt="{{ hotel.name }}">
-                <div class="card-body">
-                    <h5 class="card-title">{{ hotel.name }}</h5>
-                    <p class="card-text">
-                        📍 {{ hotel.city }}<br>
-                        💰 {{ hotel.price }} VND<br>
-                        ⭐ {{ hotel.stars }} sao — 🌟 {{ hotel.rating }} điểm<br>
-                        💬 {{ hotel.review }}
-                    </p>
-                    <a href="{{ url_for('hotel_detail', name=hotel.name) }}" class="btn btn-custom w-100">Xem chi tiết</a>
+        <!-- Bộ lọc -->
+        <form method="get" action="/recommend" class="filter-bar">
+            <div class="row align-items-center g-3">
+                <div class="col-md-2">
+                    <label class="form-label">⭐ Sao tối thiểu</label>
+                    <input type="number" name="stars" min="1" max="5" class="form-control" placeholder="VD: 4">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">💰 Ngân sách (VND)</label>
+                    <input type="number" name="budget" class="form-control" placeholder="VD: 2000000">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Sắp xếp theo</label>
+                    <select name="sort" class="form-select">
+                        <option value="">-- Không --</option>
+                        <option value="asc">💵 Giá tăng dần</option>
+                        <option value="desc">💰 Giá giảm dần</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">🏙️ Thành phố</label>
+                    <input type="text" name="location" class="form-control" placeholder="VD: Đà Nẵng">
+                </div>
+                <div class="col-md-2 text-center">
+                    <button type="submit" class="btn btn-custom mt-4 px-4">🔍 Lọc</button>
                 </div>
             </div>
-        </div>
-        {% endfor %}
-    </div>
+        </form>
 
+        <!-- Kết quả -->
+        <div class="row">
+            {% for hotel in hotels %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow">
+                    <img src="{{ hotel.image_url or hotel.image }}" class="card-img-top" alt="{{ hotel.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ hotel.name }}</h5>
+                        <p class="card-text">
+                            📍 {{ hotel.city }}<br>
+                            💰 {{ hotel.price }} VND / đêm<br>
+                            ⭐ {{ hotel.stars }} sao — 🌟 {{ hotel.rating }} điểm<br>
+                            💬 {{ hotel.short_desc }}
+                        </p>
+                        <a href="{{ url_for('hotel_detail', name=hotel.name) }}" class="btn btn-custom w-100">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if hotels|length == 0 %}
+        <div class="alert alert-warning text-center mt-4">
+            😢 Không tìm thấy khách sạn nào phù hợp với yêu cầu của bạn.
+        </div>
+        {% endif %}
+    </div>
     {% if hotels|length == 0 %}
     <div class="alert alert-warning text-center mt-4">
         😢 Không tìm thấy khách sạn nào phù hợp với yêu cầu của bạn.

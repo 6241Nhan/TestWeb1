@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử đặt phòng</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial;
+            padding: 30px;
+            background: #f9f9f9;
+            color: #333;
+        }
+
+        h2 {
+            color: #e52e71;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="email"] {
+            padding: 8px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            padding: 8px 16px;
+            background: #e52e71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f2f2f2;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .no-booking {
+            color: #666;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>🔍 Tra cứu lịch sử đặt phòng</h2>
+
+    <form method="POST" action="/history">
+        <label>Nhập email của bạn:</label><br>
+        <input type="email" name="email" required placeholder="vd: ban@gmail.com" value="{{ email }}">
+        <input type="submit" value="Xem lịch sử">
+    </form>
+
+    {% if bookings %}
+    <table>
+        <tr>
+            <th>Khách sạn</th>
+            <th>Loại phòng</th>
+            <th>Giá</th>
+            <th>Ngày nhận phòng</th>
+            <th>Ngày đặt</th>
+            <th>Ghi chú</th>
+        </tr>
+        {% for b in bookings %}
+        <tr>
+            <td>{{ b.hotel_name }}</td>
+            <td>{{ b.room_type }}</td>
+            <td>{{ "{:,.0f}".format(b.price|float) }} VND</td>
+            <td>{{ b.checkin_date }}</td>
+            <td>{{ b.booking_time }}</td>
+            <td>{{ b.special_requests or "Không có" }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% elif email %}
+    <p class="no-booking">Không tìm thấy đơn đặt phòng nào cho email: <b>{{ email }}</b></p>
+    {% endif %}
+</body>
+</html>
