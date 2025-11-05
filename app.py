@@ -408,29 +408,44 @@ def admin_hotels():
 
     # Cập nhật số phòng đã có
     if request.method == 'POST' and 'update_hotel' in request.form:
-       name = request.form.get('update_name')
-       rooms_str = request.form.get('update_rooms', '0').strip()
-       rooms_available = int(rooms_str) if rooms_str.isdigit() else 0
+        name = request.form.get('update_name', '').strip()
+        rooms_str = request.form.get('update_rooms', '0').strip()
 
-       # Chuẩn hóa header và dữ liệu
-       df.columns = df.columns.str.replace('\ufeff', '').str.strip().str.lower()
-       df['name'] = df['name'].astype(str).str.strip().str.replace('\ufeff', '').str.lower()
+    # Chuẩn hóa header và dữ liệu
+        df.columns = df.columns.str.replace('\ufeff', '').str.strip().str.lower()
+        df['name'] = df['name'].astype(str).str.strip().str.replace('\ufeff', '').str.lower()
 
-       if name:
-           clean_name = name.strip().lower()
-           if clean_name in df['name'].values:
-               mask = df['name'] == clean_name
-               df.loc[mask, 'rooms_available'] = rooms_available
-               df.loc[mask, 'status'] = 'còn' if rooms_available > 0 else 'hết'
-               df.to_csv(HOTELS_CSV, index=False, encoding='utf-8')
-               flash(f"Đã cập nhật số phòng cho {name}", "success")
-           else:
-               flash(f"Không tìm thấy khách sạn {name}", "warning")
-       else:
-           flash("Thiếu tên khách sạn!", "danger")
+        if name:
+            clean_name = name.strip().lower()
 
+        # ✅ Fix 1: chuyển đổi chuỗi sang số an toàn (cho cả "10", "10.0", " 10 ")
+            try:
+                rooms_available = int(float(rooms_str))
+                if rooms_available < 0:
+                    rooms_available = 0
+            except:
+                rooms_available = 0
+
+        # ✅ Fix 2: so sánh tên khách sạn chính xác hơn
+            mask = df['name'] == clean_name
+            if mask.any():
+            # ✅ Fix 3: cập nhật đúng cột, đảm bảo đồng bộ trạng thái
+                df.loc[mask, 'rooms_available'] = rooms_available
+                df.loc[mask, 'status'] = 'còn' if rooms_available > 0 else 'hết'
+
+            # ✅ Fix 4: lưu UTF-8-sig để không lỗi BOM, giúp phần booking đọc được chính xác
+                df.to_csv(HOTELS_CSV, index=False, encoding='utf-8-sig')
+
+                flash(f"Đã cập nhật số phòng cho {name}", "success")
+            else:
+                flash(f"Không tìm thấy khách sạn {name}", "warning")
+        else:
+            flash("Thiếu tên khách sạn!", "danger")
+
+# Chuyển đổi dataframe sang danh sách để render
     hotels = df.to_dict(orient='records')
     return render_template('admin_hotels.html', hotels=hotels)
+
 
 
 # === Quản lý đặt phòng (Admin) ===
