@@ -212,84 +212,84 @@ def add_review(name):
 
 
 # === TRANG ĐẶT PHÒNG ===
-@app.route('/booking', methods=['GET', 'POST'])
-def booking():
+@app.route('/booking/<name>/<room_type>', methods=['GET', 'POST'])
+def booking(name, room_type):
     """
-    1) GET: render form (nếu bạn dùng page riêng).
-    2) POST: xử lý đặt phòng:
-       - kiểm tra rooms_left
-       - giảm rooms_left xuống 1
-       - append booking vào bookings.csv
+    Xử lý đặt phòng:
+    - name: tên khách sạn (lấy từ URL)
+    - room_type: loại phòng (ví dụ 'Phòng nhỏ', 'Phòng đôi', v.v.)
     """
-    if request.method == 'GET':
-        # nếu bạn có page riêng cho booking, trả về template kèm thông tin hotel
-        hotel_name = request.args.get('hotel_name')  # or hotel_id
-        hotels = pd.read_csv('hotels.csv').fillna({'rooms_left': 0})
-        hotel = None
-        if hotel_name:
-            matched = hotels[hotels['name'] == hotel_name]
-            if not matched.empty:
-                hotel = matched.iloc[0].to_dict()
-        return render_template('booking.html', hotel=hotel)
+    hotels_file = 'hotels.csv'
+    bookings_file = 'bookings.csv'
+    lock_file = hotels_file + '.lock'
 
-    # POST xử lý đặt phòng
-    hotel_name = request.form.get('hotel_name') or request.form.get('hotel')
-    customer_name = request.form.get('name') or request.form.get('customer_name')
+    # Đọc dữ liệu khách sạn
+    hotels = pd.read_csv(hotels_file)
+    hotel = hotels[hotels['name'] == name]
+
+    if hotel.empty:
+        flash(f"Không tìm thấy khách sạn '{name}'!", "danger")
+        return redirect(url_for('home'))
+
+    hotel_info = hotel.iloc[0].to_dict()
+
+    # Nếu là phương thức GET -> hiển thị form đặt phòng
+    if request.method == 'GET':
+        return render_template(
+            'booking.html',
+            hotel=hotel_info,
+            room_type=room_type
+        )
+
+    # Nếu là phương thức POST -> xử lý đặt phòng
+    customer_name = request.form.get('customer_name')
     phone = request.form.get('phone')
     email = request.form.get('email', '')
     checkin_date = request.form.get('checkin_date', '')
-    adults = request.form.get('adults', '1')
-    children = request.form.get('children', '0')
+    adults = int(request.form.get('adults', 1))
+    children = int(request.form.get('children', 0))
     notes = request.form.get('notes', '')
 
-    # basic validation
-    if not hotel_name or not customer_name or not phone:
-        flash("Please provide hotel, your name and phone number.", "danger")
-        return redirect(request.referrer or url_for('home'))
+    # Kiểm tra dữ liệu nhập
+    if not customer_name or not phone:
+        flash("Vui lòng nhập đầy đủ họ tên và số điện thoại.", "warning")
+        return redirect(request.url)
 
-    hotels_csv = 'hotels.csv'
-    bookings_csv = 'bookings.csv'
-    lock_path = hotels_csv + '.lock'
-
-    # dùng file lock để tránh race condition
-    lock = FileLock(lock_path, timeout=5)  # 5s timeout
+    lock = FileLock(lock_file, timeout=5)
     try:
         with lock:
-            # đọc hotels.csv mới nhất
-            hotels = pd.read_csv(hotels_csv)
+            hotels = pd.read_csv(hotels_file)
 
-            # đảm bảo cột rooms_left tồn tại
+            # Tìm khách sạn cần cập nhật
+            idx = hotels.index[hotels['name'] == name].tolist()
+            if not idx:
+                flash(f"Không tìm thấy khách sạn '{name}'.", "danger")
+                return redirect(url_for('home'))
+
+            i = idx[0]
+
+            # Xử lý cột rooms_left (phòng còn lại)
             if 'rooms_left' not in hotels.columns:
-                hotels['rooms_left'] = 0
+                hotels['rooms_left'] = 1  # giả sử tối thiểu 1 nếu thiếu cột
 
-            # locate hotel row
-            matched = hotels[hotels['name'] == hotel_name]
-            if matched.empty:
-                flash("Hotel not found.", "danger")
-                return redirect(request.referrer or url_for('home'))
-
-            idx = matched.index[0]
-            rooms_left_val = hotels.at[idx, 'rooms_left']
-
-            # handle NaN or string
             try:
-                rooms_left = int(float(rooms_left_val))
+                rooms_left = int(float(hotels.at[i, 'rooms_left']))
             except Exception:
                 rooms_left = 0
 
+            # Kiểm tra còn phòng
             if rooms_left <= 0:
-                flash(f"Sorry, {hotel_name} is fully booked.", "warning")
-                return redirect(request.referrer or url_for('home'))
+                flash("Rất tiếc, khách sạn này đã hết phòng!", "danger")
+                return redirect(url_for('home'))
 
-            # giảm 1 phòng
-            hotels.at[idx, 'rooms_left'] = rooms_left - 1
+            # Giảm số phòng còn lại
+            hotels.at[i, 'rooms_left'] = rooms_left - 1
+            hotels.to_csv(hotels_file, index=False)
 
-            # Lưu lại hotels.csv
-            hotels.to_csv(hotels_csv, index=False)
-
-            # Append booking vào bookings.csv
-            booking_row = {
-                'hotel_name': hotel_name,
+            # Ghi đặt phòng vào bookings.csv
+            booking_data = {
+                'hotel_name': name,
+                'room_type': room_type,
                 'customer_name': customer_name,
                 'phone': phone,
                 'email': email,
@@ -298,118 +298,21 @@ def booking():
                 'children': children,
                 'notes': notes
             }
-            # nếu chưa tồn tại file bookings.csv -> tạo mới
-            try:
-                existing = pd.read_csv(bookings_csv)
-                bookings = pd.concat([existing, pd.DataFrame([booking_row])], ignore_index=True)
-            except FileNotFoundError:
-                bookings = pd.DataFrame([booking_row])
 
-            bookings.to_csv(bookings_csv, index=False)
+            try:
+                existing = pd.read_csv(bookings_file)
+                bookings = pd.concat([existing, pd.DataFrame([booking_data])], ignore_index=True)
+            except FileNotFoundError:
+                bookings = pd.DataFrame([booking_data])
+
+            bookings.to_csv(bookings_file, index=False)
 
     except Timeout:
-        flash("Server busy, please try again in a few seconds.", "warning")
-        return redirect(request.referrer or url_for('home'))
+        flash("Máy chủ đang bận, vui lòng thử lại sau vài giây.", "warning")
+        return redirect(request.url)
 
-    flash(f"Booking confirmed for {hotel_name}! We will contact you soon.", "success")
-    # redirect tới trang xác nhận hoặc trang chi tiết khách sạn
-    return redirect(url_for('payment_success', hotel_name=hotel_name))
-
-@app.route('/booking/<name>/<room_type>', methods=['GET', 'POST'])
-def booking(name, room_type):
-    hotel_data = hotels[hotels['name'] == name]
-    if hotel_data.empty:
-        return "<h3>Không tìm thấy khách sạn!</h3>", 404
-
-    hotel = map_hotel_row(hotel_data.iloc[0].to_dict())
-
-    if request.method == 'POST':
-        info = {
-            "hotel_name": name,
-            "room_type": room_type,
-            "price": float(request.form.get('price', hotel.get('price', 0))),
-            "user_name": request.form['fullname'],
-            "phone": request.form['phone'],
-            "email": request.form.get('email', ''),
-            "num_adults": int(request.form.get('adults', 1)),
-            "num_children": int(request.form.get('children', 0)),
-            "checkin_date": request.form['checkin'],
-            "nights": 1,
-            "special_requests": request.form.get('note', ''),
-            "booking_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
-
-        # ✅ Ghi an toàn
-        try:
-            df = pd.read_csv(BOOKINGS_CSV, encoding="utf-8-sig")
-        except FileNotFoundError:
-            df = pd.DataFrame(columns=info.keys())
-        df = pd.concat([df, pd.DataFrame([info])], ignore_index=True)
-        df.to_csv(BOOKINGS_CSV, index=False, encoding="utf-8-sig")
-
-        # ✅ Gửi email cho khách
-        if info["email"]:
-            try:
-                msg_user = Message(
-                    subject="Xác nhận đặt phòng - Hotel Pinder",
-                    recipients=[info["email"]]
-                )
-                msg_user.html = f"""
-                <div style="font-family: Arial, sans-serif; color:#333;">
-                    <h2 style="color:#e52e71;">🎉 Cảm ơn {info['user_name']}!</h2>
-                    <p>Bạn đã đặt phòng thành công tại <b>{info['hotel_name']}</b>.</p>
-                    <ul>
-                        <li><b>Loại phòng:</b> {info['room_type']}</li>
-                        <li><b>Giá:</b> {info['price']:,} VND</li>
-                        <li><b>Ngày nhận phòng:</b> {info['checkin_date']}</li>
-                        <li><b>Số lượng:</b> {info['num_adults']} người lớn, {info['num_children']} trẻ em</li>
-                        <li><b>Ghi chú:</b> {info['special_requests'] or "Không có"}</li>
-                    </ul>
-                    <p>🕓 Thời gian đặt: {info['booking_time']}</p>
-                    <p>📞 Hotline hỗ trợ: <b>0123 456 789</b></p>
-                    <br>
-                    <p>💌 Cảm ơn bạn đã tin tưởng sử dụng dịch vụ của <b>Hotel Pinder</b>.</p>
-                </div>
-                """
-                mail.send(msg_user)
-                print(f"📧 Đã gửi email xác nhận tới {info['email']}")
-            except Exception as e:
-                print(f"⚠️ Lỗi gửi email cho khách: {e}")
-
-        # ✅ Gửi thông báo cho admin HotelPinder
-        try:
-            msg_admin = Message(
-                subject=f"🔔 Đơn đặt phòng mới tại {info['hotel_name']}",
-                recipients=["hotelpinder@gmail.com"]
-            )
-            msg_admin.html = f"""
-            <div style="font-family: Arial, sans-serif; color:#333;">
-                <h2 style="color:#2b6cb0;">🔔 Có đơn đặt phòng mới!</h2>
-                <p>Khách hàng <b>{info['user_name']}</b> vừa đặt phòng tại <b>{info['hotel_name']}</b>.</p>
-                <ul>
-                    <li><b>Email:</b> {info['email']}</li>
-                    <li><b>Điện thoại:</b> {info['phone']}</li>
-                    <li><b>Loại phòng:</b> {info['room_type']}</li>
-                    <li><b>Giá:</b> {info['price']:,} VND</li>
-                    <li><b>Ngày nhận phòng:</b> {info['checkin_date']}</li>
-                    <li><b>Số người:</b> {info['num_adults']} NL, {info['num_children']} TE</li>
-                    <li><b>Ghi chú:</b> {info['special_requests'] or "Không có"}</li>
-                </ul>
-                <p>🕓 Thời gian đặt: {info['booking_time']}</p>
-                <hr>
-                <p>📢 Vui lòng xác nhận đơn đặt phòng này trong hệ thống quản lý HotelPinder.</p>
-            </div>
-            """
-            mail.send(msg_admin)
-            print("📨 Đã gửi email thông báo cho admin HotelPinder.")
-        except Exception as e:
-            print(f"⚠️ Lỗi gửi email admin: {e}")
-
-        return render_template('success.html', info=info)
-
-    return render_template('booking.html', hotel=hotel, room_type=room_type)
-
-
+    flash(f"Đặt phòng thành công tại {name}!", "success")
+    return redirect(url_for('payment_success', name=name, room_type=room_type))
 
 # === LỊCH SỬ ĐẶT PHÒNG ===
 @app.route('/history', methods=['GET', 'POST'])
@@ -604,4 +507,5 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
