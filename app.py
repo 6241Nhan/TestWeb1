@@ -1,3 +1,4 @@
+import pandas as pd
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import re
@@ -5,22 +6,9 @@ from datetime import datetime
 from flask_mail import Mail, Message  # thêm thư viện mail
 import tempfile
 from flask import session, flash
-import pandas as pd
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
-
-# --- Mail configuration ---
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your_email@gmail.com'  # Thay bằng email của bạn
-app.config['MAIL_PASSWORD'] = 'your_app_password'     # Dùng App Password, không phải mật khẩu thật
-app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
-
-mail = Mail(app)
-
-
 
 # 📁 Đường dẫn đến các file dữ liệu
 DATA_FOLDER = os.path.join(os.getcwd(), 'data')
@@ -318,6 +306,7 @@ def booking(name, room_type):
     return render_template('booking.html', hotel=hotel, room_type=room_type)
 
 
+
 # === LỊCH SỬ ĐẶT PHÒNG ===
 @app.route('/history', methods=['GET', 'POST'])
 def booking_history():
@@ -421,12 +410,17 @@ def admin_hotels():
     if request.method == 'POST' and 'update_hotel' in request.form:
         name = request.form.get('update_name')
         rooms_available = int(request.form.get('update_rooms', 0))
-        if name in df['name'].values:
-            df.loc[df['name'] == name, 'rooms_available'] = rooms_available
-            df.loc[df['name'] == name, 'status'] = 'còn' if rooms_available > 0 else 'hết'
-            df.to_csv(HOTELS_CSV, index=False, encoding='utf-8-sig')
-            flash(f"Đã cập nhật số phòng cho {name}", "success")
+        clean_name = name.strip().lower()
+        df['name'] = df['name'].astype(str).str.strip().str.replace('\ufeff', '').str.lower()
 
+        if clean_name in df['name'].values:
+           mask = df['name'] == clean_name
+           df.loc[mask, 'rooms_available'] = rooms_available
+           df.loc[mask, 'status'] = 'còn' if rooms_available > 0 else 'hết'
+           df.to_csv(HOTELS_CSV, index=False, encoding='utf-8')
+           flash(f"Đã cập nhật số phòng cho {name}", "success")
+        else:
+           flash(f"Không tìm thấy khách sạn {name}", "warning")
     hotels = df.to_dict(orient='records')
     return render_template('admin_hotels.html', hotels=hotels)
 
@@ -502,22 +496,7 @@ def update_hotel_status(name, status):
         flash(f"Lỗi khi cập nhật trạng thái: {e}", "danger")
     return redirect(url_for('admin_hotels'))
 
-# send test mail
-
-@app.route('/send_test_mail')
-def send_test_mail():
-    msg = Message(
-        subject="Hello from Flask",
-        recipients=["receiver@example.com"],  # email người nhận
-        body="This is a test email sent from Flask-Mail."
-    )
-    mail.send(msg)
-    return "✅ Email sent successfully!"
 
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
