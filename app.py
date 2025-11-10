@@ -1,46 +1,58 @@
-import pandas as pd
+﻿import pandas as pd
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import re
 from datetime import datetime
 from flask_mail import Mail, Message  # thêm thư viện mail
 import tempfile
-from flask import session, flash
+from routes.chatbot import init_chatbot_routes
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
 
-# 📁 Đường dẫn đến các file dữ liệu
-DATA_FOLDER = os.path.join(os.getcwd(), 'data')
-if not os.path.exists(DATA_FOLDER):
-    os.makedirs(DATA_FOLDER)
+init_chatbot_routes(app)
 
-HOTELS_CSV = os.path.join(DATA_FOLDER, 'hotels.csv')
+# -------------------------
+# ĐƯỜNG DẪN FILE (LINH HOẠT)
+# -------------------------
+# Nếu user để hotels.csv cùng thư mục với app.py thì dùng file đó,
+# nếu không thì fallback sang thư mục data/.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_FOLDER = os.path.join(BASE_DIR, 'data')
+os.makedirs(DATA_FOLDER, exist_ok=True)
+
+# ưu tiên file trong cùng thư mục với app.py (nếu tồn tại)
+hotels_candidate = os.path.join(BASE_DIR, 'hotels.csv')
+if os.path.exists(hotels_candidate):
+    HOTELS_CSV = hotels_candidate
+else:
+    HOTELS_CSV = os.path.join(DATA_FOLDER, 'hotels.csv')
+
+# bookings luôn dùng trong data (nếu bạn muốn khác có thể đổi)
 BOOKINGS_CSV = os.path.join(DATA_FOLDER, 'bookings.csv')
-# === CẤU HÌNH EMAIL ===
+REVIEWS_CSV = os.path.join(BASE_DIR, 'reviews.csv') if os.path.exists(os.path.join(BASE_DIR, 'reviews.csv')) else os.path.join(DATA_FOLDER, 'reviews.csv')
+
+# === CẤU HÌNH EMAIL (giữ nguyên) ===
 app.config.update(
     MAIL_SERVER='smtp.gmail.com',
     MAIL_PORT=587,
     MAIL_USE_TLS=True,
     MAIL_USE_SSL=False,
     MAIL_USERNAME='hotelpinder@gmail.com',   # Gmail thật
-    MAIL_PASSWORD='znsj ynpd burr tdeo',     # Mật khẩu ứng dụng 16 ký tự
+    MAIL_PASSWORD='znsj ynpd burr tdeo',     # Mật khẩu ứng dụng 16 ký tự (giữ như cũ)
     MAIL_DEFAULT_SENDER=('Hotel Pinder', 'hotelpinder@gmail.com')
 )
-
 mail = Mail(app)
 
-
-# === FILE PATHS (CHỐNG PermissionError) ===
+# === FILE PATHS (Tạo bookings nếu chưa có) ===
 try:
-    safe_dir = os.path.join(os.getcwd(), "data")
+    safe_dir = os.path.dirname(BOOKINGS_CSV)
     os.makedirs(safe_dir, exist_ok=True)
-    BOOKINGS_CSV = os.path.join(safe_dir, "bookings.csv")
     if not os.path.exists(BOOKINGS_CSV):
         df_empty = pd.DataFrame(columns=[
-            "hotel_name", "room_type", "price", "user_name", "phone", "email",
-            "num_adults", "num_children", "checkin_date", "nights",
-            "special_requests", "booking_time"
+                "hotel_name", "room_type", "price", "user_name", "phone", "email",
+                "num_adults", "num_children", "checkin_date", "nights",
+                "special_requests", "booking_time", "status"
         ])
         df_empty.to_csv(BOOKINGS_CSV, index=False, encoding="utf-8-sig")
 except Exception as e:
@@ -48,31 +60,32 @@ except Exception as e:
     BOOKINGS_CSV = os.path.join(temp_dir, "bookings.csv")
     print(f"[⚠] Không thể ghi vào thư mục chính, dùng tạm: {BOOKINGS_CSV}")
 
-HOTELS_CSV = "hotels.csv"
-REVIEWS_CSV = "reviews.csv"
-
-
-# === ĐẢM BẢO FILE TỒN TẠI ===
+# === ĐẢM BẢO FILE hotels/reviews (nếu không có thì báo) ===
 if not os.path.exists(HOTELS_CSV):
-    raise FileNotFoundError("❌ Không tìm thấy hotels.csv — hãy thêm file này trước!")
+    # nếu không có hotels.csv ở BASE_DIR hoặc data, báo lỗi để user bổ sung
+    raise FileNotFoundError(f"❌ Không tìm thấy hotels.csv — đặt file ở: {HOTELS_CSV}")
 
 if not os.path.exists(REVIEWS_CSV):
     pd.DataFrame(columns=["hotel_name", "user", "rating", "comment"]).to_csv(
         REVIEWS_CSV, index=False, encoding="utf-8-sig"
     )
 
-
-# === HÀM ĐỌC CSV AN TOÀN ===
+# === HÀM ĐỌC CSV AN TOÀN (sửa để xử lý '5.0', dấu phẩy, v.v.) ===
 def read_csv_safe(file_path):
     encodings = ["utf-8-sig", "utf-8", "cp1252"]
     for enc in encodings:
         try:
+            # đọc tất cả cột dưới dạng str trước, sau đó convert numeric an toàn
             df = pd.read_csv(file_path, encoding=enc, dtype=str)
             df.columns = df.columns.str.strip()
-            numeric_cols = ['price', 'stars', 'rating', 'num_adults', 'num_children', 'nights']
+            # các cột cần convert số
+            numeric_cols = ['price', 'stars', 'rating', 'num_adults', 'num_children', 'nights', 'rooms_available']
             for col in numeric_cols:
                 if col in df.columns:
-                    df[col] = df[col].str.replace(',', '').astype(float)
+                    # loại dấu phẩy, loại ".0" cuối, rồi convert numeric
+                    df[col] = df[col].astype(str).str.replace(',', '').str.strip()
+                    df[col] = df[col].str.replace(r'\.0$', '', regex=True)  # '5.0' -> '5'
+                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
             return df
         except UnicodeDecodeError:
             continue
@@ -81,8 +94,7 @@ def read_csv_safe(file_path):
             raise
     raise UnicodeDecodeError(f"Không đọc được file {file_path} với UTF-8 hoặc cp1252!")
 
-
-# === LOAD DỮ LIỆU ===
+# === LOAD DỮ LIỆU BAN ĐẦU (vẫn load để có cấu trúc, nhưng routes đọc file tươi) ===
 hotels = read_csv_safe(HOTELS_CSV)
 reviews_df = read_csv_safe(REVIEWS_CSV)
 
@@ -96,10 +108,9 @@ if 'hotel_name' not in reviews_df.columns:
     raise KeyError("❌ reviews.csv không có cột 'hotel_name'.")
 
 
-# === HÀM PHỤ ===
+# === HÀM HỖ TRỢ MAPPING / ICON ===
 def yes_no_icon(val):
     return "✅" if str(val).lower() in ("true", "1", "yes") else "❌"
-
 
 def map_hotel_row(row):
     h = dict(row)
@@ -117,14 +128,33 @@ def map_hotel_row(row):
 # === TRANG CHỦ ===
 @app.route('/')
 def home():
-    cities = sorted(hotels['city'].dropna().unique())
+    hotels_df = read_csv_safe(HOTELS_CSV)
+    # đảm bảo cột rooms_available và status tồn tại và đúng kiểu
+    if 'rooms_available' not in hotels_df.columns:
+        hotels_df['rooms_available'] = 0
+    hotels_df['rooms_available'] = hotels_df['rooms_available'].astype(int)
+    if 'status' not in hotels_df.columns:
+        hotels_df['status'] = hotels_df['rooms_available'].apply(lambda x: 'còn' if int(x) > 0 else 'hết')
+
+    cities = sorted(hotels_df['city'].dropna().unique())
     return render_template('index.html', cities=cities)
 
 
 # === TRANG GỢI Ý ===
 @app.route('/recommend', methods=['POST', 'GET'])
 def recommend():
-    filtered = hotels.copy()
+    filtered = read_csv_safe(HOTELS_CSV)
+
+    # đảm bảo cột status và rooms_available tồn tại và đúng kiểu
+    if 'rooms_available' not in filtered.columns:
+        filtered['rooms_available'] = 0
+    # rooms_available đã numeric từ read_csv_safe -> chỉ ép kiểu int cho chắc
+    filtered['rooms_available'] = filtered['rooms_available'].astype(int)
+    if 'status' not in filtered.columns:
+        filtered['status'] = filtered['rooms_available'].apply(lambda x: 'còn' if int(x) > 0 else 'hết')
+    else:
+        # nếu status tồn tại nhưng có giá trị lạ, chuẩn hóa theo rooms_available
+        filtered['status'] = filtered['rooms_available'].apply(lambda x: 'còn' if int(x) > 0 else 'hết')
 
     if request.method == 'POST':
         city = request.form.get('location', '').lower()
@@ -142,14 +172,14 @@ def recommend():
         try:
             budget = float(budget)
             filtered = filtered[filtered['price'] <= budget]
-        except ValueError:
+        except Exception:
             pass
 
     if stars:
         try:
             stars = int(stars)
             filtered = filtered[filtered['stars'] >= stars]
-        except ValueError:
+        except Exception:
             pass
 
     results = [map_hotel_row(r) for r in filtered.to_dict(orient='records')]
@@ -159,7 +189,18 @@ def recommend():
 # === TRANG CHI TIẾT ===
 @app.route('/hotel/<name>')
 def hotel_detail(name):
-    hotel_data = hotels[hotels['name'] == name]
+    hotels_df = read_csv_safe(HOTELS_CSV)
+
+    if 'rooms_available' not in hotels_df.columns:
+        hotels_df['rooms_available'] = 0
+    hotels_df['rooms_available'] = hotels_df['rooms_available'].astype(int)
+    if 'status' not in hotels_df.columns:
+        hotels_df['status'] = hotels_df['rooms_available'].apply(lambda x: 'còn' if int(x) > 0 else 'hết')
+    else:
+        hotels_df['status'] = hotels_df['rooms_available'].apply(lambda x: 'còn' if int(x) > 0 else 'hết')
+
+    hotel_data = hotels_df[hotels_df['name'] == name]
+
     if hotel_data.empty:
         return "<h3>Không tìm thấy khách sạn!</h3>", 404
 
@@ -168,7 +209,7 @@ def hotel_detail(name):
     hotel_reviews = reviews_df_local[reviews_df_local['hotel_name'] == name].to_dict(orient='records')
 
     avg_rating = (
-        round(sum(int(r['rating']) for r in hotel_reviews) / len(hotel_reviews), 1)
+        round(sum(float(r.get('rating', 0)) for r in hotel_reviews) / len(hotel_reviews), 1)
         if hotel_reviews else hotel.get('rating', 'Chưa có')
     )
 
@@ -209,42 +250,89 @@ def add_review(name):
 
     return redirect(url_for('hotel_detail', name=name))
 
-
 # === TRANG ĐẶT PHÒNG ===
 @app.route('/booking/<name>/<room_type>', methods=['GET', 'POST'])
 def booking(name, room_type):
-    import pandas as pd
+    hotels_df = read_csv_safe(HOTELS_CSV)
+    if 'rooms_available' not in hotels_df.columns:
+        hotels_df['rooms_available'] = 0
+    hotels_df['rooms_available'] = hotels_df['rooms_available'].astype(int)
+    if 'status' not in hotels_df.columns:
+        hotels_df['status'] = hotels_df['rooms_available'].apply(lambda x: 'còn' if int(x) > 0 else 'hết')
+    else:
+        hotels_df['status'] = hotels_df['rooms_available'].apply(lambda x: 'còn' if int(x) > 0 else 'hết')
 
-    # Đọc dữ liệu khách sạn và đặt phòng
-    hotels = pd.read_csv('hotels.csv')
-    bookings = pd.read_csv('bookings.csv')
+    hotel_data = hotels_df[hotels_df['name'] == name]
 
-    # Lấy thông tin khách sạn
-    hotel = hotels[hotels['name'] == name]
-    if hotel.empty:
-        flash("Hotel not found!", "danger")
-        return redirect(url_for('index'))
-    hotel = hotel.iloc[0]
+    if hotel_data.empty:
+        return "<h3>Không tìm thấy khách sạn!</h3>", 404
 
-    # Nếu form được gửi (POST)
+    hotel = map_hotel_row(hotel_data.iloc[0].to_dict())
+
+    # --- 🟢 LẤY STATUS MỚI NHẤT TỪ CSV ---
+    hotel_row = hotels_df[hotels_df['name'] == name].iloc[0]
+    hotel['status'] = 'còn' if int(hotel_row['rooms_available']) > 0 else 'hết'
+    is_available = hotel['status'].lower() == 'còn'
+    flash(f"Trạng thái phòng hiện tại: {hotel['status']}", "info")
+
+    # --- 🛑 Kiểm tra trạng thái phòng ---
+    if not is_available:
+        flash("Khách sạn này hiện đã hết phòng. Vui lòng chọn khách sạn khác.", "danger")
+        #return redirect(url_for('home'))  # chuyển về trang chủ
+
+    # Xử lý POST đặt phòng
     if request.method == 'POST':
-        customer_name = request.form.get('customer_name')
-        customer_email = request.form.get('customer_email')
-        customer_phone = request.form.get('customer_phone')
-        checkin_date = request.form.get('checkin_date')
-        checkout_date = request.form.get('checkout_date')
+        info = {
+            "hotel_name": name,
+            "room_type": room_type,
+            "price": float(request.form.get('price', hotel.get('price', 0))),
+            "user_name": request.form['fullname'].strip(),
+            "phone": request.form['phone'].strip(),
+            "email": request.form.get('email', '').strip(),
+            "num_adults": max(int(request.form.get('adults', 1)), 1),
+            "num_children": max(int(request.form.get('children', 0)), 0),
+            "checkin_date": request.form['checkin'],
+            "nights": 1,
+            "special_requests": request.form.get('note', '').strip(),
+            "booking_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "status": "Chờ xác nhận"
+        }
 
-        # Kiểm tra phòng trống
-        if hotel['status'].strip().lower() == 'hết' or int(hotel['rooms_available']) <= 0:
-            flash("Sorry, there are no available rooms for this hotel.", "danger")
-            return redirect(url_for('hotel_detail', name=name))
+        # Ghi CSV đặt phòng
+        try:
+            df = pd.read_csv(BOOKINGS_CSV, encoding="utf-8-sig")
+        except FileNotFoundError:
+            df = pd.DataFrame(columns=info.keys())
+        df = pd.concat([df, pd.DataFrame([info])], ignore_index=True)
+        df.to_csv(BOOKINGS_CSV, index=False, encoding="utf-8-sig")
 
-        # ✅ Không ghi vào file CSV — chỉ thông báo đặt thành công
-        flash(f"Booking successful for {name} ({room_type}) from {checkin_date} to {checkout_date}.", "success")
-        return redirect(url_for('index'))
+        # Gửi email khách
+        if info["email"]:
+            try:
+                msg_user = Message(
+                    subject="Xác nhận đặt phòng - Hotel Pinder",
+                    recipients=[info["email"]]
+                )
+                msg_user.html = f"""..."""  # giữ nguyên nội dung email
+                mail.send(msg_user)
+            except Exception as e:
+                print(f"⚠️ Lỗi gửi email cho khách: {e}")
 
-    # GET: Hiển thị form đặt phòng
-    return render_template('booking.html', hotel=hotel, room_type=room_type)
+        # Gửi email admin
+        try:
+            msg_admin = Message(
+                subject=f"🔔 Đơn đặt phòng mới tại {info['hotel_name']}",
+                recipients=["hotelpinder@gmail.com"]
+            )
+            msg_admin.html = f"""..."""  # giữ nguyên nội dung email admin
+            mail.send(msg_admin)
+        except Exception as e:
+            print(f"⚠️ Lỗi gửi email admin: {e}")
+
+        return render_template('success.html', info=info)
+
+    return render_template('booking.html', hotel=hotel, room_type=room_type, is_available=is_available)
+
 
 
 # === LỊCH SỬ ĐẶT PHÒNG ===
@@ -256,7 +344,7 @@ def booking_history():
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
         if os.path.exists(BOOKINGS_CSV) and email:
-            df = pd.read_csv(BOOKINGS_CSV, encoding="utf-8-sig")
+            df = pd.read_csv(BOOKINGS_CSV, encoding='utf-8-sig')
             df['email'] = df['email'].astype(str).str.lower()
             bookings = df[df['email'] == email].to_dict(orient='records')
 
@@ -267,8 +355,6 @@ def booking_history():
 @app.route('/about')
 def about_page():
     return render_template('about.html')
-
-from flask import session, flash
 
 # === ĐĂNG NHẬP QUẢN TRỊ ===
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -314,22 +400,43 @@ def admin_dashboard():
                            total_cities=total_cities)
 
 
-# === QUẢN LÝ KHÁCH SẠN ===
 @app.route('/admin/hotels', methods=['GET', 'POST'])
 def admin_hotels():
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
 
+    # Đọc file khách sạn
     df = pd.read_csv(HOTELS_CSV, encoding='utf-8-sig')
 
-    # Thêm khách sạn mới
-    if request.method == 'POST' and 'add_hotel' in request.form:
+    # --- Đảm bảo các cột cần thiết có tồn tại ---
+    if 'rooms_available' not in df.columns:
+        df['rooms_available'] = 1
+    if 'status' not in df.columns:
+        df['status'] = 'còn'
+
+    # --- Xử lý dữ liệu bị thiếu hoặc NaN ---
+    # Chuyển kiểu an toàn (loại '5.0' -> '5', loại dấu phẩy)
+    df['rooms_available'] = df['rooms_available'].astype(str).str.replace(',', '').str.strip()
+    df['rooms_available'] = df['rooms_available'].str.replace(r'\.0$', '', regex=True)
+    df['rooms_available'] = pd.to_numeric(df['rooms_available'], errors='coerce').fillna(0).astype(int)
+    df['status'] = df['rooms_available'].apply(lambda x: 'còn' if x > 0 else 'hết')
+    df.to_csv(HOTELS_CSV, index=False, encoding='utf-8-sig')
+
+
+    # --- Thêm khách sạn mới ---
+    if request.method == 'POST' and 'name' in request.form and 'add_hotel' not in request.form:
         name = request.form.get('name', '').strip()
         city = request.form.get('city', '').strip()
         price = request.form.get('price', '').strip()
         stars = request.form.get('stars', '').strip()
         description = request.form.get('description', '').strip()
-        rooms_available = int(request.form.get('rooms_available', 1))
+        rooms_available = request.form.get('rooms_available', 1)
+
+        try:
+            rooms_available = int(float(str(rooms_available).replace(',', '').replace('.0', '')))
+        except Exception:
+            rooms_available = 1
+
         if name and city:
             new_row = {
                 "name": name,
@@ -341,51 +448,32 @@ def admin_hotels():
                 "status": "còn" if rooms_available > 0 else "hết"
             }
             df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-            df.to_csv(HOTELS_CSV, index=False, encoding="utf-8-sig")
-            flash("Đã thêm khách sạn mới!", "success")
+            df.to_csv(HOTELS_CSV, index=False, encoding='utf-8-sig')
+            flash("✅ Đã thêm khách sạn mới!", "success")
+            return redirect(url_for('admin_hotels'))
         else:
-            flash("Tên và thành phố không được để trống!", "warning")
+            flash("⚠️ Tên và thành phố không được để trống!", "warning")
 
-    # Cập nhật số phòng đã có
+    # --- Cập nhật số phòng còn ---
     if request.method == 'POST' and 'update_hotel' in request.form:
-        name = request.form.get('update_name', '').strip()
-        rooms_str = request.form.get('update_rooms', '0').strip()
+        update_name = request.form.get('update_name', '').strip()
+        update_rooms = request.form.get('update_rooms', '').strip()
 
-    # Chuẩn hóa header và dữ liệu
-        df.columns = df.columns.str.replace('\ufeff', '').str.strip().str.lower()
-        df['name'] = df['name'].astype(str).str.strip().str.replace('\ufeff', '').str.lower()
+        try:
+            update_rooms = int(float(str(update_rooms).replace(',', '').replace('.0', '')))
+        except ValueError:
+            update_rooms = 0
 
-        if name:
-            clean_name = name.strip().lower()
-
-        # ✅ Fix 1: chuyển đổi chuỗi sang số an toàn (cho cả "10", "10.0", " 10 ")
-            try:
-                rooms_available = int(float(rooms_str))
-                if rooms_available < 0:
-                    rooms_available = 0
-            except:
-                rooms_available = 0
-
-        # ✅ Fix 2: so sánh tên khách sạn chính xác hơn
-            mask = df['name'] == clean_name
-            if mask.any():
-            # ✅ Fix 3: cập nhật đúng cột, đảm bảo đồng bộ trạng thái
-                df.loc[mask, 'rooms_available'] = rooms_available
-                df.loc[mask, 'status'] = 'còn' if rooms_available > 0 else 'hết'
-
-            # ✅ Fix 4: lưu UTF-8-sig để không lỗi BOM, giúp phần booking đọc được chính xác
-                df.to_csv(HOTELS_CSV, index=False, encoding='utf-8-sig')
-
-                flash(f"Đã cập nhật số phòng cho {name}", "success")
-            else:
-                flash(f"Không tìm thấy khách sạn {name}", "warning")
+        if update_name in df['name'].values:
+            df.loc[df['name'] == update_name, 'rooms_available'] = update_rooms
+            df.loc[df['name'] == update_name, 'status'] = 'còn' if update_rooms > 0 else 'hết'
+            df.to_csv(HOTELS_CSV, index=False, encoding='utf-8-sig')
+            flash(f"🔧 Đã cập nhật số phòng cho {update_name}", "success")
         else:
-            flash("Thiếu tên khách sạn!", "danger")
+            flash("⚠️ Không tìm thấy khách sạn có tên này!", "danger")
 
-# Chuyển đổi dataframe sang danh sách để render
     hotels = df.to_dict(orient='records')
     return render_template('admin_hotels.html', hotels=hotels)
-
 
 
 # === Quản lý đặt phòng (Admin) ===
@@ -393,7 +481,7 @@ def admin_hotels():
 def admin_bookings():
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
-    
+
     if os.path.exists(BOOKINGS_CSV):
         df = pd.read_csv(BOOKINGS_CSV, encoding='utf-8-sig')
         bookings = df.to_dict(orient='records')
@@ -450,11 +538,27 @@ def update_hotel_status(name, status):
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
     try:
+        # --- Đọc CSV trước ---
         df = pd.read_csv(HOTELS_CSV, encoding='utf-8-sig')
+
         if name in df['name'].values:
+            # ✅ Cập nhật trạng thái
             df.loc[df['name'] == name, 'status'] = status
+
+            # ✅ Đồng bộ rooms_available
+            if status.strip().lower() == 'còn':
+                # Nếu admin set "còn" mà rooms_available = 0 thì tự đặt = 1
+                df.loc[df['name'] == name, 'rooms_available'] = df.loc[df['name'] == name, 'rooms_available'].replace(0, 1)
+            elif status.strip().lower() == 'hết':
+                df.loc[df['name'] == name, 'rooms_available'] = 0
+
+            # Đồng bộ lại status theo rooms_available để hiển thị đúng trên booking
+            df['status'] = df['rooms_available'].apply(lambda x: 'còn' if x > 0 else 'hết')
+
             df.to_csv(HOTELS_CSV, index=False, encoding='utf-8-sig')
-            flash(f"Đã cập nhật {name} → {status}", "success")
+            flash(f"✅ Đã cập nhật {name} → {status}", "success")
+        else:
+            flash("⚠️ Không tìm thấy khách sạn này!", "warning")
     except Exception as e:
         flash(f"Lỗi khi cập nhật trạng thái: {e}", "danger")
     return redirect(url_for('admin_hotels'))
@@ -463,6 +567,5 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
-
 
 

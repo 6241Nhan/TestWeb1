@@ -1,4 +1,4 @@
-name,city,price,stars,rating,image_url,buffet,pool,sea,view,review,status,rooms_available
+﻿name,city,price,stars,rating,image_url,buffet,pool,sea,view,review,status,rooms_available
 Hanoi Pearl Hotel,Hanoi,950000,4,4.5,https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0c/15/79/c3/hanoi-pearl-hotel.jpg,False,False,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent: 2em;'>
 Khách sạn Hanoi Pearl, một khách sạn 4.0 sao nằm tại trung tâm Hà Nội, Việt Nam, là một điểm đến lý tưởng cho những ai muốn khám phá vẻ đẹp và văn hóa của thành phố cổ này. Với tọa lạc chỉ cách trung tâm thành phố 0.1 km, khách sạn này đem lại sự tiện lợi cho du khách khi muốn khám phá các điểm tham quan nổi tiếng trong khu vực. Hanoi Pearl Hotel có tổng cộng 70 phòng, đảm bảo rằng du khách sẽ có nơi nghỉ thoải mái và tiện nghi. Từ các phòng sang trọng và hiện đại cho đến các phòng gia đình rộng rãi, khách sạn này đáp ứng đa dạng nhu cầu của du khách. Với việc khách sạn được xây dựng vào năm 2013 và được tu sửa lại vào năm 2022, du khách có thể yên tâm về chất lượng và tiện nghi tại đây. Khách sạn Hanoi Pearl cho phép trẻ em từ 2 đến 5 tuổi lưu trú miễn phí, tạo điều kiện thuận lợi cho những gia đình đi du lịch cùng nhau. Đồng thời, với thời gian nhận phòng từ 02:00 PM và giờ trả phòng không sau 12:00 PM, du khách có thể thoải mái lên kế hoạch cho chuyến đi của mình. Dịch vụ đưa đón sân bay cũng được cung cấp, với thời gian đến sân bay chỉ mất khoảng 40 phút. Hãy trải nghiệm sự thoải mái và tiện nghi tại Hanoi Pearl Hotel và tận hưởng chuyến đi đáng nhớ tại Hà Nội.
@@ -17,7 +17,7 @@ Hanoi Pearl Hotel nằm trong khu vực có nhiều điểm mua sắm hấp dẫ
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent: 2em;'>
 Khách sạn Hanoi Pearl đã nhận được những đánh giá tích cực từ khách hàng với điểm tổng thể ấn tượng là 8.7 trên 10. Điều này chứng tỏ sự hài lòng và đáng giá của khách hàng đối với chất lượng dịch vụ tại khách sạn này. Bên cạnh đó, khách hàng cũng đánh giá cao về giá trị tiền mà họ nhận được khi lưu trú tại đây, với điểm đánh giá cho mục này là 8.6. Điều này cho thấy khách sạn Hanoi Pearl mang lại sự hài lòng và đáng giá cho khách hàng với mức giá phù hợp. Ngoài ra, khách sạn cũng nhận được những đánh giá tích cực về các tiện nghi tại đây, với điểm đánh giá là 8.1. Khách hàng đã thể hiện sự hài lòng với sự tiện ích và chất lượng của các dịch vụ mà khách sạn cung cấp. Điểm đánh giá cho ẩm thực tại khách sạn là 7.9, cho thấy khách hàng cũng đánh giá cao về chất lượng và đa dạng của các món ăn tại đây. Với những tiêu chí này, khách sạn Hanoi Pearl mang đến trải nghiệm ấn tượng và đáng nhớ cho khách hàng.
-</p>",còn,1
+</p>",hết,0
 Apricot Hotel,Hanoi,1200000,5,4.7,https://apricothotels.com/wp-content/uploads/2016/08/Hotel-lobby-s.jpg,False,True,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Nằm ở bờ hồ Hoàn Kiếm, khách sạn Apricot Hotel được thiết kế sang trọng theo phong cách tân cổ điển này cung cấp chỗ ở hiện đại và cao cấp với truy cập Wi-Fi miễn phí trong toàn bộ khuôn viên. Chỗ nghỉ có tầm nhìn bao quát ra quang cảnh thành phố cũng như hồ nước từ hồ bơi trên tầng mái và trung tâm thể dục nhìn ra toàn cảnh. Chỗ đỗ xe miễn phí nằm ngay trong khuôn viên nơi này.
@@ -30,8 +30,13 @@ Nằm ở bờ hồ Hoàn Kiếm, khách sạn Apricot Hotel được thiết k�
 <img src='/static/images/hotels/Apricot Hotel/ApricotHotel_review2.jpg' style='width:800px; display:block; margin:20px auto;'>
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
-Đội ngũ nhân viên thân thiện tại lễ tân 24 giờ của Apricot Hotel có thể trợ giúp khách với các dịch vụ giặt là, thu đổi ngoại tệ và thu xếp các cuộc họp/tiệc. Các dịch vụ cho thuê xe hơi, đặt vé và tour du lịch cũng được đáp ứng. Những khách muốn có giây phút yên tĩnh, có thể khám phá thư viện của khách sạn nằm ở tầng 9.</p><img src='/static/images/hotels/Apricot Hotel/ApricotHotel_review3.jpg' style='width:800px; display:block; margin:20px auto;'><br><p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>Khách sạn có quầy bar thời thượng trên tầng mái phục vụ tuyển chọn đồ uống ngon và cung cấp 2 lựa chọn ăn uống cho du khách. Du khách có thể thưởng thức một loạt các món ăn ngon của Việt Nam và phương Tây. Các bữa ăn theo chế độ đặc biệt cũng có thể được chuẩn bị khi khách yêu cầu.
-</p>",còn,2
+Đội ngũ nhân viên thân thiện tại lễ tân 24 giờ của Apricot Hotel có thể trợ giúp khách với các dịch vụ giặt là, thu đổi ngoại tệ và thu xếp các cuộc họp/tiệc. Các dịch vụ cho thuê xe hơi, đặt vé và tour du lịch cũng được đáp ứng. Những khách muốn có giây phút yên tĩnh, có thể khám phá thư viện của khách sạn nằm ở tầng 9.
+</p>
+<img src='/static/images/hotels/Apricot Hotel/ApricotHotel_review3.jpg' style='width:800px; display:block; margin:20px auto;'>
+<br>
+<p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
+Khách sạn có quầy bar thời thượng trên tầng mái phục vụ tuyển chọn đồ uống ngon và cung cấp 2 lựa chọn ăn uống cho du khách. Du khách có thể thưởng thức một loạt các món ăn ngon của Việt Nam và phương Tây. Các bữa ăn theo chế độ đặc biệt cũng có thể được chuẩn bị khi khách yêu cầu.
+</p>",còn,6
 Golden Lotus Hotel,Hanoi,550000,3,3.5,https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=60,False,False,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Hãy tự hỏi tại sao nhiều khách du lịch đã lựa chọn Golden Lotus Boutique Hotel khi đến Hà Nội. Khách sạn là sự tổng hợp của những giá trị lý tưởng, sự thoải mái và thuận tiện như khung cảnh lãng mạn cùng với loạt tiện nghi được thiết kế cho những khách du lịch như bạn. Gần các địa danh như Nhà Thờ Lớn (0,2 km) và Imperial Citadel of Thang Long (1,1 km) đã làm Golden Lotus Boutique Hotel trở thành lựa chọn lý tưởng cho những ai muốn đến thăm những địa danh yêu thích này ở Hà Nội.
@@ -39,10 +44,15 @@ Hãy tự hỏi tại sao nhiều khách du lịch đã lựa chọn Golden Lotu
 <img src='/static/images/hotels/Golden Lotus Hotel/GoldenLotusHotel_review1.jpg' style='width:800px; display:block; margin:20px auto;'>
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
-Các phòng khách sạn cung cấp các tiện nghi như TV màn hình phẳng, điều hòa nhiệt độ và quầy bar mini, và khách có thể kết nối internet với Wi-Fi miễn phí được cung cấp bởi khách sạn. Golden Lotus Boutique Hotel cung cấp nhân viên hỗ trợ khách và dịch vụ phòng, giúp cho kỳ nghỉ của bạn trở nên dễ chịu hơn nữa. Khách sạn còn cung cấp bữa sáng. Khi ở đây, hãy chắc chắn thử một số nhà hàng kiểu Á, bao gồm Bun Cha Huong Lien, Bánh Mì 25 và Cau Go Vietnamese Cuisine Restaurant, đều nằm gần Golden Lotus Boutique Hotel.</p><img src='/static/images/hotels/Golden Lotus Hotel/GoldenLotusHotel_review2.jpg' style='width:800px; display:block; margin:20px auto;'><br><p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>Hơn nữa, trong suốt kỳ nghỉ của bạn đừng quên ghé thăm một số viện bảo tàng nghệ thuật nổi tiếng, như Fine Arts Museum (Bao Tang My Thuat), Bảo Tàng Hồ Chí Minh và Phòng tranh 3D. Tại Golden Lotus Boutique Hotel, sự thoải mái và hài lòng của bạn được đặt lên hàng đầu, và họ mong muốn được chào đón bạn tới Hà Nội.
+Các phòng khách sạn cung cấp các tiện nghi như TV màn hình phẳng, điều hòa nhiệt độ và quầy bar mini, và khách có thể kết nối internet với Wi-Fi miễn phí được cung cấp bởi khách sạn. Golden Lotus Boutique Hotel cung cấp nhân viên hỗ trợ khách và dịch vụ phòng, giúp cho kỳ nghỉ của bạn trở nên dễ chịu hơn nữa. Khách sạn còn cung cấp bữa sáng. Khi ở đây, hãy chắc chắn thử một số nhà hàng kiểu Á, bao gồm Bun Cha Huong Lien, Bánh Mì 25 và Cau Go Vietnamese Cuisine Restaurant, đều nằm gần Golden Lotus Boutique Hotel.
+</p>
+<img src='/static/images/hotels/Golden Lotus Hotel/GoldenLotusHotel_review2.jpg' style='width:800px; display:block; margin:20px auto;'>
+<br>
+<p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
+Hơn nữa, trong suốt kỳ nghỉ của bạn đừng quên ghé thăm một số viện bảo tàng nghệ thuật nổi tiếng, như Fine Arts Museum (Bao Tang My Thuat), Bảo Tàng Hồ Chí Minh và Phòng tranh 3D. Tại Golden Lotus Boutique Hotel, sự thoải mái và hài lòng của bạn được đặt lên hàng đầu, và họ mong muốn được chào đón bạn tới Hà Nội.
 </p>
 <img src='/static/images/hotels/Golden Lotus Hotel/GoldenLotusHotel_review3.jpg' style='width:800px; display:block; margin:20px auto;'>
-<br>",còn,3
+<br>",còn,1
 Little Charm Hostel,Hanoi,250000,2,4.0,https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=800&q=60,False,False,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Little Charm Hanoi Hostel là đề xuất hàng đầu dành cho những tín đồ du lịch bụi mong muốn được nghỉ tại một nơi nghỉ vừa thoải mái lại hợp túi tiền. Khi lưu trú tại nơi nghỉ thì nội thất và kiến trúc hẳn là hai yếu tố quan trọng khiến quý khách mãn nhãn. Với thiết kế độc đáo, Little Charm Hanoi Hostel mang đến không gian lưu trú làm hài lòng quý khách.
@@ -61,7 +71,7 @@ Du lịch một mình cũng không hề kém phần thú vị và Little Charm H
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Quầy tiếp tân 24 giờ luôn sẵn sàng phục vụ quý khách từ thủ tục nhận phòng đến trả phòng hay bất kỳ yêu cầu nào. Nếu cần giúp đỡ xin hãy liên hệ đội ngũ tiếp tân, chúng tôi luôn sẵn sàng hỗ trợ quý khách. Sóng WiFi phủ khắp các khu vực chung của nơi nghỉ cho phép quý khách luôn kết nối với gia đình và bè bạn. Little Charm Hanoi Hostel là nơi nghỉ sở hữu đầy đủ tiện nghi và dịch vụ xuất sắc theo nhận định của hầu hết khách lưu trú. Với những tiện nghi sẵn có, Little Charm Hanoi Hostel thực sự là một nơi lưu trú hoàn hảo.
-</p>",còn,4
+</p>",còn,1
 Hanoi Central Star,Hanoi,350000,1,2.8,https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60,False,False,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Hanoi Central Star Hotel là một khách sạn hiện đại và sang trọng tọa lạc ngay trung tâm Hà Nội, chỉ cách Hồ Hoàn Kiếm và khu Phố Cổ vài phút đi bộ. Với vị trí thuận lợi, khách sạn là lựa chọn lý tưởng cho du khách muốn khám phá các điểm tham quan, quán cà phê truyền thống và ẩm thực địa phương.
@@ -80,7 +90,7 @@ Bên cạnh đó, Hanoi Central Star Hotel cung cấp nhiều tiện ích như n
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Dù bạn lưu trú ngắn ngày hay dài ngày, Hanoi Central Star Hotel đem đến trải nghiệm nghỉ dưỡng tiện nghi, an toàn và ấm cúng giữa lòng thủ đô. Hãy chọn nơi đây làm điểm dừng chân để khám phá vẻ đẹp và nhịp sống đặc sắc của Hà Nội.
-</p>",còn,5
+</p>",còn,1
 Fusion Suites Danang,Da Nang,1100000,4,4.6,https://danangopentour.vn/uploads/images/images/khach-san-fusion-suites-da-nang.jpg,False,False,True,True,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Fusion Suites Danang là một khách sạn nghỉ dưỡng phong cách hiện đại, nằm ngay bên bờ biển Mỹ Khê xinh đẹp. Với vị trí lý tưởng chỉ vài bước là đến biển, du khách có thể thoải mái tận hưởng làn gió biển mát mẻ và cảnh hoàng hôn lãng mạn trên bãi biển nổi tiếng nhất Đà Nẵng.
@@ -99,7 +109,7 @@ Fusion Suites Danang mang đến trải nghiệm khác biệt nhờ dịch vụ 
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Với phong cách phục vụ chuyên nghiệp và không khí thoải mái, Fusion Suites Danang là lựa chọn hoàn hảo cho những ai muốn tận hưởng kỳ nghỉ thư thái, đẳng cấp và gần gũi với thiên nhiên ngay giữa thành phố biển Đà Nẵng.
-</p>",còn,6
+</p>",còn,10
 InterContinental Danang,Da Nang,2300000,5,4.9,https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=60,True,True,True,True,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Tự hào có nhiều lựa chọn ăn uống cao cấp như La Maison 1888 danh tiếng, InterContinental Danang Sun Peninsula Resort đem đến cho du khách nơi lánh mình sang trọng với bãi biển riêng, 2 hồ bơi lớn ngoài trời và spa. Du khách có thể ngắm nhìn quang cảnh biển tuyệt đẹp từ resort.
@@ -118,7 +128,7 @@ Từ resort, du khách mất khoảng 45 phút để đến Sân bay Đà Nẵng
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Du khách có thể khám phá CLB golf Bà Nà Hills nổi tiếng hoặc thử sức tại CLB golf Đà Nẵng. Resort còn cung cấp nhiều hoạt động giải trí như đi xe đạp, yoga, đi bộ đường dài và các liệu pháp thư giãn tại spa. Du khách cũng có thể thưởng thức ẩm thực đa dạng tại Nhà hàng Citron, Barefoot hay tận hưởng rượu champagne và xì-gà thượng hạng tại Buffalo Bar.
-</p>",còn,7
+</p>",còn,1
 Danang Riverside Hotel,Da Nang,750000,3,3.8,https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=60,True,True,False,True,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Danang Riverside Hotel tọa lạc ngay bên bờ sông Hàn thơ mộng, sở hữu vị trí tuyệt đẹp giữa trung tâm thành phố Đà Nẵng. Du khách chỉ cần vài phút là có thể đến Cầu Rồng, Cầu Tình Yêu cũng như các khu mua sắm và giải trí sầm uất. Đây là điểm dừng chân lý tưởng cho cả khách du lịch và công tác muốn tận hưởng vẻ đẹp năng động của thành phố biển.
@@ -137,7 +147,7 @@ Tại Danang Riverside Hotel, du khách có thể tận hưởng ẩm thực pho
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Với phong cách phục vụ chuyên nghiệp, không gian thoáng đãng cùng lợi thế nằm ngay trung tâm, Danang Riverside Hotel là lựa chọn tuyệt vời cho hành trình khám phá Đà Nẵng của bạn thêm phần trọn vẹn và đáng nhớ.
-</p>",còn,8
+</p>",còn,1
 Dana Pearl Inn,Da Nang,400000,2,3.2,https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=60,False,False,False,True,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Dana Pearl Danang Hotel sở hữu vị trí thuận tiện ngay trung tâm Đà Nẵng, chỉ vài phút di chuyển đến Cầu Rồng, sông Hàn và bãi biển Mỹ Khê nổi tiếng. Đây là điểm dừng chân lý tưởng cho du khách muốn kết hợp khám phá thành phố và tận hưởng kỳ nghỉ thoải mái bên bờ biển.
@@ -156,7 +166,7 @@ Bên cạnh đó, Dana Pearl Danang Hotel cung cấp nhiều tiện ích như nh
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Nhờ lợi thế vị trí và chất lượng dịch vụ chu đáo, Dana Pearl Danang Hotel là lựa chọn hấp dẫn cho những ai muốn trải nghiệm nhịp sống sôi động của Đà Nẵng trong một không gian nghỉ ngơi tiện nghi và thoải mái.
-</p>",còn,9
+</p>",còn,1
 Thanh Binh Motel,Da Nang,250000,1,2.5,https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60,False,False,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Thanh Bình Motel là một lựa chọn lưu trú tiết kiệm và tiện nghi, tọa lạc gần khu vực trung tâm thành phố Đà Nẵng. Với vị trí thuận lợi, du khách dễ dàng di chuyển đến các điểm tham quan nổi tiếng như bãi biển Mỹ Khê, cầu Rồng và sông Hàn chỉ trong vài phút.
@@ -175,7 +185,7 @@ Motel cung cấp các dịch vụ hỗ trợ như lễ tân 24/7, cho thuê xe m
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Với mức giá hợp lý, dịch vụ chu đáo và vị trí thuận tiện, Thanh Bình Motel là điểm dừng chân phù hợp cho những ai muốn tiết kiệm chi phí nhưng vẫn đảm bảo sự thoải mái và thuận lợi khi du lịch Đà Nẵng.
-</p>",còn,10
+</p>",còn,1
 Sunrise Nha Trang,Nha Trang,1000000,4,4.4,https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=60,True,True,True,True,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Sunrise Nha Trang Beach Hotel & Spa tọa lạc ngay trên đường Trần Phú – tuyến đường ven biển đẹp nhất thành phố Nha Trang. Với vị trí đắc địa chỉ vài bước chân là đến biển, khách sạn mang đến cho du khách tầm nhìn hướng biển tuyệt đẹp và sự thuận tiện tối đa trong việc khám phá thành phố biển.
@@ -194,10 +204,11 @@ Sunrise Nha Trang cung cấp nhiều tiện ích cao cấp như hồ bơi ngoài
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Với phong cách phục vụ chuyên nghiệp, không gian sang trọng và vị trí trung tâm thuận lợi, Sunrise Nha Trang là lựa chọn hoàn hảo cho những kỳ nghỉ thư giãn, lãng mạn và đáng nhớ tại thành phố biển xinh đẹp này.
-</p>",còn,7
+</p>",còn,1
 Vinpearl Resort Nha Trang,Nha Trang,1800000,5,4.8,https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60,True,True,True,True,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Vinpearl Resort Nha Trang tọa lạc trên đảo Hòn Tre tuyệt đẹp, sở hữu bãi biển riêng và không gian nghỉ dưỡng đẳng cấp giữa thiên nhiên trong lành. Với vị trí tách biệt khỏi sự náo nhiệt của thành phố, nơi đây mang đến cho du khách kỳ nghỉ yên bình, thư giãn cùng cảnh biển xanh ngắt và bãi cát trắng mịn.
+</p>
 </p>
 <img src='/static/images/hotels/Vinpearl Resort Nha Trang/VinpearlResortNhaTrang_review1.jpg' style='width:800px; display:block; margin:20px auto;'>
 <br>
@@ -213,7 +224,7 @@ Tại Vinpearl Resort Nha Trang, du khách có thể hòa mình vào hồ bơi n
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Với dịch vụ tiêu chuẩn quốc tế, đội ngũ nhân viên chuyên nghiệp và hệ sinh thái du lịch – giải trí trọn vẹn, Vinpearl Resort Nha Trang là lựa chọn lý tưởng cho các kỳ nghỉ gia đình, tuần trăng mật hay các chuyến du lịch nghỉ dưỡng sang trọng tại thành phố biển xinh đẹp này.
-</p>",hết,0
+</p>",còn,1
 Liberty Central Nha Trang,Nha Trang,800000,3,4.1,https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=60,True,True,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Tọa lạc tại một vị trí thuận tiện, Liberty Central Nha Trang Hotel cung cấp chỗ ở trang nhã, sang trọng với truy cập Wi-Fi miễn phí trong toàn bộ khuôn viên. Khách sạn sở hữu hồ bơi ngoài trời, phòng xông hơi khô, trung tâm thể dục và tiện nghi hội họp, mang đến trải nghiệm nghỉ dưỡng tiện nghi cho du khách.
@@ -232,7 +243,7 @@ Các phòng nghỉ tại Liberty Central Nha Trang Hotel được thiết kế h
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Du khách có thể thư giãn với dịch vụ mát-xa tại spa, giải trí với karaoke hoặc thưởng thức ẩm thực hấp dẫn tại nhà hàng trong khuôn viên. Nhân viên lễ tân 24/7 luôn sẵn sàng hỗ trợ các dịch vụ giặt là, đưa đón sân bay và nhiều nhu cầu khác để chuyến nghỉ tại Nha Trang thêm trọn vẹn.
-</p>",còn,5
+</p>",còn,1
 Blue Sea Hostel,Nha Trang,400000,2,3.0,https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=60,False,False,True,True,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Blue Sea Hotel Nha Trang tọa lạc gần bãi biển tuyệt đẹp của thành phố, mang đến không gian lưu trú thoải mái và thuận tiện cho những ai muốn tận hưởng kỳ nghỉ bên biển. Với vị trí lý tưởng, du khách có thể dễ dàng di chuyển đến các điểm tham quan nổi tiếng trong khu vực.
@@ -251,7 +262,7 @@ Khách sạn cung cấp hệ thống phòng nghỉ trang nhã, đầy đủ ti�
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Blue Sea Hotel Nha Trang là lựa chọn phù hợp cho cả du lịch và công tác, mang đến sự thoải mái và tiện nghi với chi phí hợp lý. Đây chắc chắn sẽ là điểm đến lý tưởng cho hành trình khám phá thành phố biển xinh đẹp của bạn.
-</p>",còn,7
+</p>",còn,1
 Happy Budget Inn,Nha Trang,220000,1,2.3,https://pix8.agoda.net/hotelImages/281378/-1/4a990da89eaae1f2a7ba6bb0e0af827f.jpg?ca=0&ce=1&s=1024x,False,False,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Happy Hotel Nha Trang sở hữu khu vườn, phòng chờ chung, nhà hàng và quầy bar, mang đến không gian nghỉ dưỡng tiện nghi cho du khách. Khách sạn 3 sao này còn cung cấp Wi-Fi miễn phí, bếp chung, dịch vụ phòng, quầy lễ tân 24 giờ, dịch vụ tiền sảnh và dịch vụ thu đổi ngoại tệ.
@@ -270,7 +281,7 @@ Khách sạn phục vụ bữa sáng kiểu Á, đồng thời cung cấp các d
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Happy Hotel Nha Trang nằm gần các điểm tham quan nổi tiếng như Bãi biển Nha Trang, Tháp Trầm Hương và Trung tâm thương mại Nha Trang Center. Sân bay quốc tế Cam Ranh cách khách sạn khoảng 35 km, thuận tiện cho việc di chuyển của du khách.
-</p>",còn,11
+</p>",còn,1
 Saigon Prince Hotel,Ho Chi Minh,850000,4,4.3,https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=60,True,True,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Saigon Prince Hotel là khách sạn boutique cao cấp tọa lạc trên Đại lộ Nguyễn Huệ, ngay trung tâm quận 1, Sài Gòn. Khách sạn cung cấp chỗ nghỉ sang trọng với Wi-Fi miễn phí trong toàn bộ khuôn viên. Du khách chỉ mất vài phút đi bộ để đến Chợ Bến Thành, Nhà hát Thành phố Sài Gòn và bờ sông Sài Gòn thơ mộng.
@@ -289,7 +300,7 @@ Khách sạn cung cấp nhiều tiện ích giải trí và thư giãn, bao gồ
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Nhà hàng Grill Restaurant trong khách sạn phục vụ ẩm thực Việt Nam chính thống, đồng thời mang đến các món ăn nổi tiếng của Singapore, Malaysia, Indonesia và phương Tây cùng bộ sưu tập rượu vang tinh tế. Saigon Prince Hotel nằm gần Bảo tàng Thành phố Hồ Chí Minh và chỉ cách Sân bay Quốc tế Tân Sơn Nhất khoảng 7 km, thuận tiện cho việc di chuyển.
-</p>",còn,7
+</p>",còn,1
 The Reverie Saigon,Ho Chi Minh,2500000,5,4.9,https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60,True,True,False,True,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Tọa lạc tại vị trí thuận tiện ở Quận 1, The Reverie Saigon Hotel cung cấp chỗ nghỉ sang trọng và đầy phong cách với truy cập Wi-Fi miễn phí trong các phòng nghỉ. Khách sạn sở hữu hồ bơi ngoài trời, trung tâm thể dục và phòng xông hơi khô ngay trong khuôn viên, mang đến trải nghiệm nghỉ dưỡng đẳng cấp cho du khách.
@@ -308,7 +319,7 @@ Các phòng máy lạnh tại The Reverie Saigon Hotel được trang trí tinh 
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Khách có thể thư giãn với liệu pháp mát-xa tại spa hoặc thưởng thức đồ uống tại quầy bar. Nhà hàng trong khách sạn phục vụ đa dạng món ăn Châu Á và phương Tây, đồng thời cung cấp dịch vụ ăn uống riêng tư tại phòng. Quầy lễ tân 24 giờ hỗ trợ các dịch vụ như giữ hành lý, đặt xe và đưa đón sân bay, đảm bảo kỳ nghỉ của du khách trọn vẹn và thoải mái.
-</p>",còn,5
+</p>",còn,1
 Silverland Central,Ho Chi Minh,700000,3,3.6,https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=60,True,True,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Silverland Bến Thành tọa lạc tại trung tâm Thành phố Hồ Chí Minh, gần Công viên Trung tâm, mang đến chỗ nghỉ tiện nghi và sang trọng với Wi-Fi miễn phí trong toàn bộ khuôn viên. Vị trí lý tưởng giúp du khách dễ dàng tiếp cận các điểm tham quan nổi tiếng, nhà hàng, quán cà phê và các trung tâm mua sắm sầm uất.
@@ -327,7 +338,7 @@ Các phòng nghỉ tại Silverland Bến Thành được trang bị điều hò
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Silverland Bến Thành còn cung cấp các dịch vụ hỗ trợ như lễ tân 24 giờ, dịch vụ phòng và tư vấn du lịch, giúp chuyến lưu trú của khách trở nên dễ dàng và thuận tiện. Với vị trí trung tâm và dịch vụ chu đáo, đây là lựa chọn lý tưởng cho du khách muốn khám phá Sài Gòn một cách trọn vẹn và thoải mái.
-</p>",còn,7
+</p>",còn,1
 9 Hostel Saigon,Ho Chi Minh,350000,2,3.0,https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=60,False,False,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 9 Hostel Saigon tọa lạc tại trung tâm Quận 1, Thành phố Hồ Chí Minh, mang đến chỗ nghỉ thân thiện, tiện nghi với Wi-Fi miễn phí trong toàn bộ khuôn viên. Vị trí thuận tiện giúp du khách dễ dàng tiếp cận các điểm tham quan nổi tiếng, các quán ăn địa phương và khu vui chơi giải trí sầm uất.
@@ -346,7 +357,7 @@ Khách sạn còn cung cấp các dịch vụ hỗ trợ như lễ tân 24/7, d�
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Với mức giá hợp lý, dịch vụ thân thiện và vị trí trung tâm, 9 Hostel Saigon là lựa chọn lý tưởng cho những ai muốn trải nghiệm nhịp sống sôi động của Sài Gòn mà vẫn tiết kiệm chi phí lưu trú. Đây là điểm dừng chân hoàn hảo cho du khách muốn khám phá thành phố một cách thuận tiện và trọn vẹn.
-</p>",còn,4
+</p>",còn,1
 Phuong Nam Motel,Ho Chi Minh,200000,1,2.2,https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=800&q=60,False,False,False,False,"
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Phương Nam Hotel tọa lạc tại trung tâm Thành phố Hồ Chí Minh, mang đến chỗ nghỉ tiện nghi, thoải mái với Wi-Fi miễn phí trong toàn bộ khuôn viên. Vị trí thuận lợi giúp du khách dễ dàng di chuyển đến các điểm tham quan nổi tiếng, trung tâm mua sắm và các quán cà phê đặc sắc của thành phố.
@@ -365,4 +376,4 @@ Phương Nam Hotel cung cấp nhiều dịch vụ hỗ trợ như lễ tân 24 g
 <br>
 <p style='font-size:18px; line-height:1.8; font-weight:bold; text-indent:2em;'>
 Với mức giá hợp lý, vị trí trung tâm và dịch vụ chu đáo, Phương Nam Hotel là lựa chọn lý tưởng cho khách du lịch, công tác hay những ai muốn khám phá Sài Gòn một cách trọn vẹn, tiện lợi và thoải mái.
-</p>",còn,2
+</p>",còn,1
