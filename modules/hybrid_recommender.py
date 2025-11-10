@@ -27,19 +27,29 @@ class HybridRecommender:
         user_hotels = self.bookings[self.bookings['user_id'] == user_id]['hotel_id']
         return self.hotel_profiles[user_hotels.index]
 
-    def recommend(self, user_id, top_n=5):
-        user_profile = self._get_user_profile(user_id)
-        if user_profile.shape[0] == 0:
-            return self.hotels.sample(top_n)
+    def recommend(self, user_id, top_n=5, context=None):
+    user_profile = self._get_user_profile(user_id)
+    sim_scores = cosine_similarity(user_profile.mean(axis=0), self.hotel_profiles).flatten() if user_profile.shape[0] > 0 else [0] * len(self.hotels)
 
-        # Collaborative score: similarity to user's past bookings
-        sim_scores = cosine_similarity(user_profile.mean(axis=0), self.hotel_profiles).flatten()
+    sentiment = self.hotels['hotel_id'].map(self.sentiment_scores).fillna(0).values
+    context_scores = self._compute_context_scores(context)
 
-        # Sentiment score
-        sentiment = self.hotels['hotel_id'].map(self.sentiment_scores).fillna(0).values
+    final_score = 0.5 * sim_scores + 0.3 * sentiment + 0.2 * context_scores
+    top_indices = final_score.argsort()[::-1][:top_n]
+    return self.hotels.iloc[top_indices][['hotel_id', 'name', 'location', 'price', 'rating']]
+    
+    def _compute_context_scores(self, context):
+    scores = []
+        for _, row in self.hotels.iterrows():
+        score = 0
+            if context:   
+                if 'budget' in context and row['price'] <= context['budget']:
+                score += 1
+                if 'location' in context and context['location'].lower() in row['location'].lower():
+                score += 1
+                if 'purpose' in context and context['purpose'].lower() in row.get('amenities', '').lower():
+                score += 1
+            scores.append(score)
+        return pd.Series(scores).values
 
-        # Final score: weighted sum
-        final_score = 0.6 * sim_scores + 0.4 * sentiment
-        top_indices = final_score.argsort()[::-1][:top_n]
-        return self.hotels.iloc[top_indices][['hotel_id', 'name', 'location', 'price', 'rating']]
 
