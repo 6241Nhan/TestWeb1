@@ -9,14 +9,20 @@
     <div class="container py-4">
         <h2 class="text-center mb-4">🏨 Quản lý khách sạn</h2>
 
+        <!-- Nút điều hướng -->
         <div class="mb-3 text-end">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-primary">🏠 Dashboard</a>
             <a href="{{ url_for('admin_logout') }}" class="btn btn-secondary">🔒 Đăng xuất</a>
         </div>
 
+        <!-- Hiển thị thông báo -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, msg in messages %}
-        <div class="alert alert-{{ category }}">{{ msg }}</div>
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
         {% endfor %}
         {% endif %}
         {% endwith %}
@@ -44,18 +50,34 @@
                     <input name="description" class="form-control" placeholder="Mô tả ngắn">
                 </div>
             </div>
-            <div class="text-end mt-2">
-                <button class="btn btn-primary">Thêm khách sạn</button>
+            <div class="text-end mt-3">
+                <button type="submit" class="btn btn-primary" name="add_hotel" value="1">Thêm khách sạn</button>
             </div>
         </form>
 
-        <!-- Bảng khách sạn -->
+        <!-- Form cập nhật số phòng -->
+        <form method="POST" class="card p-3 shadow-sm mb-4">
+            <h5>🔧 Cập nhật số phòng còn</h5>
+            <div class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <input name="update_name" class="form-control" placeholder="Tên khách sạn" required>
+                </div>
+                <div class="col-md-3">
+                    <input name="update_rooms" type="number" class="form-control" placeholder="Số phòng còn" min="0" required>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-warning" name="update_hotel" value="1">Cập nhật</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Bảng danh sách khách sạn -->
         <table class="table table-bordered table-striped align-middle">
-            <thead class="table-light">
+            <thead class="table-dark text-center">
                 <tr>
                     <th>Tên</th>
                     <th>Thành phố</th>
-                    <th>Giá</th>
+                    <th>Giá (VND)</th>
                     <th>Sao</th>
                     <th>Số phòng còn</th>
                     <th>Trạng thái</th>
@@ -69,20 +91,22 @@
                     <td>{{ h.city }}</td>
                     <td>{{ h.price }}</td>
                     <td>{{ h.stars }}</td>
-                    <td>{{ h.rooms_available }}</td>
-                    <td>
+                    <td class="text-center">{{ h.rooms_available }}</td>
+                    <td class="text-center">
                         {% if h.status == 'còn' %}
                         <span class="badge bg-success">Còn phòng</span>
                         {% else %}
                         <span class="badge bg-danger">Hết phòng</span>
                         {% endif %}
                     </td>
-                    <td>
+                    <td class="text-center">
                         <a href="{{ url_for('update_hotel_status', name=h.name, status='còn') }}" class="btn btn-sm btn-success">Còn</a>
                         <a href="{{ url_for('update_hotel_status', name=h.name, status='hết') }}" class="btn btn-sm btn-warning">Hết</a>
                         <a href="{{ url_for('delete_hotel', name=h.name) }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa khách sạn này?')">Xóa</a>
                     </td>
                 </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center text-muted">Không có khách sạn nào.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
