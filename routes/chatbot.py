@@ -726,3 +726,23 @@ def chatbot():
     
     # Fallback chatbot response
     return jsonify({'response': "I'm here to help with hotel recommendations. Try asking for suggestions!"})
+
+@chatbot_bp.route('/chatbot', methods=['POST'])
+def chatbot():
+    user_input = request.json.get('message')
+    user_id = request.json.get('user_id', 101)
+
+    # Example context extraction (replace with NLP if needed)
+    context = {
+        'budget': 100,  # Extracted from user input
+        'location': 'Hanoi',
+        'purpose': 'business'
+    }
+
+    if 'recommend' in user_input.lower():
+        recommendations = recommender.recommend(user_id, context=context)
+        response = recommendations.to_dict(orient='records')
+        return jsonify({'response': response})
+
+    return jsonify({'response': "Tell me your budget, location, or travel purpose to get tailored hotel suggestions."})
+
