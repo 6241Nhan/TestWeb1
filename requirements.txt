@@ -19,4 +19,5 @@ Flask
 Flask-Mail
 Flask-SQLAlchemy
 gunicorn
-
+textblob==0.17.1
+nltk==3.8.1
