@@ -45,10 +45,6 @@
             margin-bottom: 15px;
         }
 
-            .room-card h5 {
-                margin-bottom: 10px;
-            }
-
         .btn-primary {
             border-radius: 10px;
         }
@@ -65,7 +61,7 @@
             position: relative;
             width: 100%;
             max-width: 100%;
-            height: 500px; /* 🟢 tăng từ 350px lên 500px */
+            height: 500px;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 8px 20px rgba(0,0,0,0.25);
@@ -78,6 +74,99 @@
                 border-radius: 15px;
             }
 
+        /* ❤️ Nút yêu thích */
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #dc3545;
+            float: right;
+            transition: transform 0.2s;
+        }
+
+            .favorite-btn:hover {
+                transform: scale(1.2);
+            }
+
+        /* 💰 Bảng giá theo mùa */
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+            .price-table th, .price-table td {
+                border: 1px solid #eee;
+                padding: 12px;
+                text-align: center;
+            }
+
+            .price-table th {
+                background: #007bff;
+                color: white;
+            }
+
+            .price-table tr:hover {
+                background: #f8f9fa;
+            }
+
+        /* 🖼️ Carousel thumbnails */
+        .carousel-thumbnails {
+            overflow-x: auto;
+            padding: 5px 0;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+            .carousel-thumbnails .thumb-img {
+                width: 80px;
+                height: 50px;
+                object-fit: cover;
+                border-radius: 5px;
+                cursor: pointer;
+                opacity: 0.7;
+                transition: all 0.3s;
+            }
+
+                .carousel-thumbnails .thumb-img:hover {
+                    opacity: 1;
+                    transform: scale(1.05);
+                }
+
+        /* Popup ảnh lớn */
+        #imgModal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+            #imgModal img {
+                margin: 5% auto;
+                display: block;
+                max-width: 90%;
+                max-height: 80%;
+                border-radius: 10px;
+            }
+
+            #imgModal span {
+                position: absolute;
+                top: 20px;
+                right: 35px;
+                color: #fff;
+                font-size: 40px;
+                font-weight: bold;
+                cursor: pointer;
+            }
     </style>
 </head>
 <body>
@@ -89,12 +178,47 @@
             <img src="{{ hotel.image }}" class="hotel-img" alt="Ảnh khách sạn">
 
             <div class="p-4">
-                <h2>{{ hotel.name }}</h2>
+                <h2>
+                    {{ hotel.name }}
+                    <button class="favorite-btn" id="favBtn" title="Lưu khách sạn này">♡</button>
+                </h2>
                 <p class="text-muted mb-1">{{ hotel.city }} — ⭐ {{ hotel.stars }} sao</p>
                 <h4 class="text-danger fw-bold">{{ hotel.price }}₫ / đêm</h4>
                 <p>{{ hotel.full_desc | safe }}</p>
 
-                <!-- 🗺️ BẢN ĐỒ GOOGLE MAP -->
+                <!-- 🖼️ Bộ sưu tập hình ảnh (Carousel) -->
+                <h4 class="text-primary mb-3">Bộ sưu tập hình ảnh</h4>
+                <div id="hotelCarousel" class="carousel slide shadow-lg rounded-4 overflow-hidden mb-2" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        {% for img in hotel.gallery %}
+                        <button type="button" data-bs-target="#hotelCarousel" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}" aria-current="true" aria-label="Slide {{ loop.index }}"></button>
+                        {% endfor %}
+                    </div>
+                    <div class="carousel-inner">
+                        {% for img in hotel.gallery %}
+                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                            <img src="{{ img }}" class="d-block w-100" alt="Ảnh khách sạn" style="height:500px;object-fit:cover;">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#hotelCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Trước</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#hotelCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Tiếp</span>
+                    </button>
+                </div>
+
+                <!-- Thumbnails dưới carousel -->
+                <div class="carousel-thumbnails mb-4">
+                    {% for img in hotel.gallery %}
+                    <img src="{{ img }}" class="thumb-img" data-bs-target="#hotelCarousel" data-bs-slide-to="{{ loop.index0 }}">
+                    {% endfor %}
+                </div>
+
+                <!-- 🗺️ Bản đồ -->
                 <h5 class="mt-4 mb-3 text-primary fw-semibold">📍 Vị trí trên bản đồ</h5>
                 <div class="map-container mb-4">
                     <iframe loading="lazy"
@@ -112,7 +236,32 @@
             </div>
         </div>
 
-        <!-- 🏠 DANH SÁCH PHÒNG -->
+        <!-- 💰 Bảng giá theo mùa -->
+        <h3 class="mt-4 mb-3">Bảng giá theo mùa</h3>
+        <table class="price-table mb-5">
+            <tr>
+                <th>Mùa</th>
+                <th>Giá trung bình / đêm</th>
+                <th>Ghi chú</th>
+            </tr>
+            <tr>
+                <td>Mùa thấp điểm</td>
+                <td>{{ (hotel.price * 0.8)|int }}₫</td>
+                <td>Tháng 3 – 5</td>
+            </tr>
+            <tr>
+                <td>Mùa cao điểm</td>
+                <td>{{ (hotel.price * 1.2)|int }}₫</td>
+                <td>Tháng 6 – 8</td>
+            </tr>
+            <tr>
+                <td>Lễ tết</td>
+                <td>{{ (hotel.price * 1.4)|int }}₫</td>
+                <td>Tết, lễ lớn</td>
+            </tr>
+        </table>
+
+        <!-- 🏠 Danh sách phòng -->
         <h3 class="mb-3">Các loại phòng</h3>
         <div class="row">
             {% for room in rooms %}
@@ -127,9 +276,19 @@
             {% endfor %}
         </div>
 
+        <!-- 📍 Địa điểm nổi bật gần khách sạn -->
+        <div class="nearby mt-5">
+            <h4 class="text-primary">📍 Địa điểm nổi bật gần {{ hotel.name }}</h4>
+            <ul class="mt-3">
+                {% for place in hotel.nearby %}
+                <li><strong>{{ place.name }}</strong> — cách {{ place.distance }} km</li>
+                {% endfor %}
+            </ul>
+        </div>
+
         <hr class="my-4">
 
-        <!-- 💬 ĐÁNH GIÁ -->
+        <!-- 💬 Đánh giá -->
         <div class="mb-4">
             <h3>Đánh giá của khách</h3>
 
@@ -174,12 +333,64 @@
 
     </div>
 
+    <!-- Popup ảnh lớn -->
+    <div id="imgModal">
+        <span id="closeModal">&times;</span>
+        <img id="modalImg" src="">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Toggle form đánh giá
         document.getElementById("toggleReviewBtn").addEventListener("click", function () {
             const f = document.getElementById("reviewForm");
             f.style.display = f.style.display === "none" ? "block" : "none";
         });
-    </script>
 
+        // ❤️ Nút yêu thích
+        const favBtn = document.getElementById("favBtn");
+        favBtn.addEventListener("click", () => {
+            if (favBtn.textContent === "♡") {
+                favBtn.textContent = "❤️";
+                alert("Đã thêm khách sạn vào danh sách yêu thích!");
+            } else {
+                favBtn.textContent = "♡";
+                alert("Đã bỏ khỏi danh sách yêu thích!");
+            }
+        });
+
+        // Tự động trượt carousel
+        const carousel = document.querySelector('#hotelCarousel');
+        if (carousel) {
+            const bsCarousel = new bootstrap.Carousel(carousel, {
+                interval: 3000,
+                ride: 'carousel'
+            });
+        }
+
+        // Thumbnails dưới carousel
+        document.querySelectorAll('.carousel-thumbnails .thumb-img').forEach((thumb, idx) => {
+            thumb.addEventListener('click', () => {
+                const carouselEl = document.querySelector('#hotelCarousel');
+                const carousel = bootstrap.Carousel.getOrCreateInstance(carouselEl);
+                carousel.to(idx);
+            });
+        });
+
+        // Popup ảnh lớn
+        const modal = document.getElementById("imgModal");
+        const modalImg = document.getElementById("modalImg");
+        const closeModal = document.getElementById("closeModal");
+
+        document.querySelectorAll('#hotelCarousel .carousel-item img').forEach(img => {
+            img.addEventListener('click', () => {
+                modal.style.display = "block";
+                modalImg.src = img.src;
+            });
+        });
+
+        closeModal.onclick = function () { modal.style.display = "none"; }
+        window.onclick = function (event) { if (event.target == modal) modal.style.display = "none"; }
+    </script>
 </body>
 </html>

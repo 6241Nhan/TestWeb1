@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -64,7 +64,7 @@
 
             .hero p {
                 font-size: 1.2rem;
-                color: #000000000000;
+                color: #f5f5f5;
                 margin-bottom: 40px;
             }
 
@@ -204,6 +204,284 @@
         <h1>Khám phá khách sạn mơ ước của bạn ✨</h1>
         <p>Tìm nơi lưu trú lý tưởng — nhanh chóng, dễ dàng và thông minh hơn.</p>
 
+
+        <!-- ===================== BẮT ĐẦU: MỞ RỘNG HERO - INTRO + DESTINATIONS + FILTER ===================== -->
+        <!-- Giới thiệu ngắn -->
+        <section class="container text-center mt-5 mb-4" id="site-intro" style="max-width:1000px; z-index:1; position:relative;">
+            <div class="p-4 rounded-4" style="background:rgba(0,0,0,0.45); backdrop-filter: blur(6px);">
+                <h2 class="fw-bold" style="color: #ffd27a;">Smart Hotel Finder</h2>
+                <p class="mb-1" style="color:#f3f3f3; font-size:1.05rem;">
+                    Nền tảng tìm & đặt khách sạn thông minh — so sánh giá, lọc tiện nghi và đọc đánh giá thật.
+                </p>
+                <p class="text-muted small mb-0">Slogan: <em>Stay Smart, Stay Inspired.</em></p>
+            </div>
+        </section>
+
+        <!-- Thanh tìm kiếm địa danh + filter trigger -->
+        <section class="container mb-4" style="z-index:1; position:relative;">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input id="quickSearchInput" class="form-control" placeholder="Tìm thành phố hoặc địa danh (VD: Đà Nẵng)" aria-label="Tìm địa danh">
+                        <button id="openFilterBtn" class="btn btn-custom" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas" aria-controls="filterOffcanvas">
+                            <span class="d-none d-md-inline">Bộ lọc nâng cao</span> 🔎
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#destinations" class="btn btn-outline-light">Xem điểm đến nổi bật</a>
+                    <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#reviewsModal">Đánh giá & Góp ý</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Điểm đến nổi bật -->
+        <section id="destinations" class="container mb-5" style="z-index:1; position:relative;">
+            <h3 class="mb-3" style="color:#fff;">🌍 Điểm đến nổi bật</h3>
+            <div class="row g-3">
+                <!-- Card 1: Da Nang -->
+                <div class="col-6 col-md-3">
+                    <a href="/destinations/Da%20Nang" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm">
+                            <img src="https://statics.vinpearl.com/da-nang_1681788661.jpg" class="card-img-top" alt="Da Nang">
+                            <div class="card-body text-center">
+                                <strong class="text-dark">Đà Nẵng</strong>
+                                <p class="small text-muted mb-0">Khách sạn ven biển & view đẹp</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 2: Ho Chi Minh -->
+                <div class="col-6 col-md-3">
+                    <a href="/destinations/Ho%20Chi%20Minh" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Ho_Chi_Minh_City.jpg" class="card-img-top" alt="Ho Chi Minh">
+                            <div class="card-body text-center">
+                                <strong class="text-dark">Hồ Chí Minh</strong>
+                                <p class="small text-muted mb-0">Khách sạn trung tâm, tiện giao thông</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 3: Ha Noi -->
+                <div class="col-6 col-md-3">
+                    <a href="/destinations/Ha%20Noi" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm">
+                            <img src="https://ik.imagekit.io/tvlk/blog/2023/01/du-lich-ha-noi-12.jpg" class="card-img-top" alt="Ha Noi">
+                            <div class="card-body text-center">
+                                <strong class="text-dark">Hà Nội</strong>
+                                <p class="small text-muted mb-0">Khách sạn cổ điển & ấm cúng</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 4: Nha Trang -->
+                <div class="col-6 col-md-3">
+                    <a href="/destinations/Nha%20Trang" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm">
+                            <img src="https://statics.vinpearl.com/nha-trang-7-ngay_1681996551.jpg" class="card-img-top" alt="Nha Trang">
+                            <div class="card-body text-center">
+                                <strong class="text-dark">Nha Trang</strong>
+                                <p class="small text-muted mb-0">Resort & bãi tắm đẹp</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Offcanvas: Filter panel -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="filterOffcanvas" aria-labelledby="filterOffcanvasLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="filterOffcanvasLabel">Bộ lọc tìm kiếm</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
+            </div>
+            <div class="offcanvas-body">
+                <form id="filterForm" onsubmit="applyFilter(event)">
+                    <div class="mb-3">
+                        <label class="form-label">⭐ Xếp hạng sao</label>
+                        <div class="d-flex gap-2">
+                            <div><input type="checkbox" name="stars" value="5"> 5⭐</div>
+                            <div><input type="checkbox" name="stars" value="4"> 4⭐</div>
+                            <div><input type="checkbox" name="stars" value="3"> 3⭐</div>
+                            <div><input type="checkbox" name="stars" value="2"> 2⭐</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">💰 Giá tối đa (VND)</label>
+                        <input type="number" name="max_price" class="form-control" placeholder="Ví dụ: 2000000">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">🏷️ Tiện nghi</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="pool" id="amen1" name="amenities">
+                            <label class="form-check-label" for="amen1">Hồ bơi</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="sea" id="amen2" name="amenities">
+                            <label class="form-check-label" for="amen2">Gần biển</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="breakfast" id="amen3" name="amenities">
+                            <label class="form-check-label" for="amen3">Buffet sáng</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="bar" id="amen4" name="amenities">
+                            <label class="form-check-label" for="amen4">Bar</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">📐 Loại phòng (diện tích)</label>
+                        <select name="size" class="form-select">
+                            <option value="">Bất kỳ</option>
+                            <option value="small">&lt; 25 m²</option>
+                            <option value="medium">25–40 m²</option>
+                            <option value="large">&gt; 40 m²</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-custom w-100">Áp dụng</button>
+                        <button type="button" class="btn btn-outline-secondary w-100" onclick="resetFilter()">Đặt lại</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal: Reviews (xem + viết) -->
+        <div class="modal fade" id="reviewsModal" tabindex="-1" aria-labelledby="reviewsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reviewsModalLabel">Đánh giá & Góp ý</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Thông tin tóm tắt -->
+                        <div class="mb-3">
+                            <strong>Gửi đánh giá cho khách sạn:</strong>
+                            <p class="small text-muted">Bạn có thể xem các đánh giá gần đây hoặc gửi đánh giá mới.</p>
+                        </div>
+
+                        <!-- Danh sách đánh giá (server render hoặc fetch bằng JS) -->
+                        <div id="reviewsList">
+                            <!-- Ví dụ mẫu (server có thể render vào modal này qua AJAX hoặc include server-side) -->
+                            <div class="mb-2 p-2" style="background:#f8f9fa;border-radius:8px;">
+                                <strong>Nguyen Van A</strong> — ⭐ 5<br>
+                                <small>Phòng sạch, nhân viên thân thiện.</small>
+                            </div>
+                            <div class="mb-2 p-2" style="background:#f8f9fa;border-radius:8px;">
+                                <strong>Tran Thi B</strong> — ⭐ 4<br>
+                                <small>View đẹp, bữa sáng phong phú.</small>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Form gửi đánh giá -->
+                        <form id="quickReviewForm" method="POST" action="/add_review">
+                            <input type="hidden" name="hotel_name" id="rv_hotel_name" value="">
+                            <div class="mb-2">
+                                <label class="form-label">Tên</label>
+                                <input type="text" name="user" class="form-control" placeholder="Tên của bạn (hoặc để trống)">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Số sao</label>
+                                <select name="rating" class="form-select" required>
+                                    <option value="5">5</option>
+                                    <option value="4">4</option>
+                                    <option value="3">3</option>
+                                    <option value="2">2</option>
+                                    <option value="1">1</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Nhận xét</label>
+                                <textarea name="comment" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-custom">Gửi đánh giá</button>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thêm CSS nhỏ để khớp giao diện (không đè lên style gốc) -->
+        <style>
+            #destinations .card {
+                cursor: pointer;
+                overflow: hidden;
+                border-radius: 12px;
+            }
+
+                #destinations .card img {
+                    height: 140px;
+                    object-fit: cover;
+                }
+
+            .btn-custom {
+                background: linear-gradient(45deg,#ff8a00,#e52e71);
+                color: #fff;
+                border: none;
+                border-radius: 30px;
+            }
+
+            .offcanvas-body .form-label {
+                font-weight: 600;
+            }
+        </style>
+
+        <!-- JS: xử lý filter/search nhanh + đặt tên hotel vào form review -->
+        <script>
+  // Khi người dùng gõ địa danh và ấn Enter -> chuyển tới /destinations/<query>
+  document.getElementById('quickSearchInput')?.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      const q = encodeURIComponent(this.value.trim());
+      if(q) window.location.href = '/destinations/' + q;
+    }
+  });
+
+  // Áp dụng filter: hiện tại chỉ đọc form và điều hướng GET query (backend cần xử lý)
+  function applyFilter(e){
+    e.preventDefault();
+    const form = document.getElementById('filterForm');
+    const fd = new FormData(form);
+    const params = new URLSearchParams();
+
+    // nhiều stars có thể bị lặp: lấy tất cả
+    for(const s of fd.getAll('stars')) params.append('stars', s);
+    if(fd.get('max_price')) params.set('max_price', fd.get('max_price'));
+    for(const a of fd.getAll('amenities')) params.append('amenities', a);
+    if(fd.get('size')) params.set('size', fd.get('size'));
+
+    // Chuyển đến kết quả (backend route cần hỗ trợ /search?...)
+    const q = params.toString();
+    window.location.href = '/search' + (q ? ('?' + q) : '');
+  }
+
+  function resetFilter(){
+    document.getElementById('filterForm').reset();
+  }
+
+  // Khi mở modal reviews, set hotel name (nếu có biến JS hoặc input)
+  var reviewsModalEl = document.getElementById('reviewsModal');
+  reviewsModalEl?.addEventListener('show.bs.modal', function (event) {
+    // nếu bạn muốn gán hotel hiện tại vào form:
+    var hotelName = "{{ hotel.name if hotel else '' }}"; // Jinja sẽ expand nếu biến có
+    document.getElementById('rv_hotel_name').value = hotelName;
+  });
+        </script>
+        <!-- ===================== KẾT THÚC: MỞ RỘNG HERO - INTRO + DESTINATIONS + FILTER ===================== -->
         <!-- Search Form -->
         <form action="/recommend" method="POST" class="search-box" id="search">
             <div class="mb-3">
@@ -249,469 +527,70 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- === CHATBOT WIDGET === -->
-    <div id="chatbotWidget" class="chatbot-widget">
-        <!-- Chatbot Toggle Button -->
-        <div class="chatbot-toggle-btn" onclick="toggleChatbot()">
-            <span class="chatbot-icon">💬</span>
-            <span class="chatbot-text">AI Assistant</span>
-        </div>
-
-        <!-- Chatbot Container -->
-        <div class="chatbot-container" id="chatbotContainer">
-            <div class="chatbot-header">
-                <div class="chatbot-title">
-                    <span class="chatbot-avatar">🤖</span>
-                    <div class="chatbot-info">
-                        <div class="chatbot-name">Travel AI Assistant</div>
-                        <div class="chatbot-status">🟢 Đang trực tuyến</div>
-                    </div>
-                </div>
-                <button class="chatbot-close" onclick="toggleChatbot()">×</button>
-            </div>
-
-            <div class="chatbot-messages" id="chatbotMessages">
-                <div class="message bot-message">
-                    <div class="message-content">
-                        <div class="message-sender">AI Assistant</div>
-                        <div class="message-text">
-                            👋 Chào bạn! Tôi là trợ lý AI có thể giúp bạn:<br>
-                            • Tìm khách sạn theo ngân sách & địa điểm<br>
-                            • So sánh các khách sạn<br>
-                            • Tư vấn địa điểm du lịch<br><br>
-                            Bạn cần hỗ trợ gì ạ?
-                        </div>
-                        <div class="message-time">Vừa xong</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="chatbot-input">
-                <div class="input-group">
-                    <input type="text" id="chatbotInput" class="form-control"
-                           placeholder="Nhập câu hỏi của bạn..." autocomplete="off">
-                    <button class="btn btn-primary" onclick="sendChatMessage()" id="sendButton">
-                        <span class="send-icon">📤</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+    <div class="chatbot-floating-btn">
+    <a href="/chatbot" class="floating-btn">
+        <span class="btn-icon">💬</span>
+        <span class="btn-text">Chatbot Tư vấn</span>
+    </a>
     </div>
-
+    
     <style>
-        /* === CHATBOT WIDGET STYLES === */
-        .chatbot-widget {
+        .chatbot-floating-btn {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 10000;
-            font-family: 'Poppins', sans-serif;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
         }
-
-        /* Toggle Button */
-        .chatbot-toggle-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 50px;
-            cursor: pointer;
+    
+        .floating-btn {
             display: flex;
             align-items: center;
             gap: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
             transition: all 0.3s ease;
-            animation: pulse 2s infinite;
+            border: none;
         }
-
-            .chatbot-toggle-btn:hover {
-                transform: translateY(-3px);
+    
+            .floating-btn:hover {
+                transform: translateY(-5px);
                 box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+                color: white;
+                text-decoration: none;
             }
-
-        .chatbot-icon {
+    
+        .btn-icon {
             font-size: 20px;
         }
-
-        .chatbot-text {
-            font-weight: 600;
-            font-size: 14px;
+    
+        .btn-text {
+            white-space: nowrap;
         }
-
-        /* Chatbot Container */
-        .chatbot-container {
-            position: absolute;
-            bottom: 70px;
-            right: 0;
-            width: 380px;
-            height: 500px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            border: 2px solid #e1e5e9;
-        }
-
-            .chatbot-container.active {
-                display: flex;
-                animation: slideUp 0.3s ease;
-            }
-
-        /* Header */
-        .chatbot-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chatbot-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .chatbot-avatar {
-            font-size: 24px;
-        }
-
-        .chatbot-info {
-            line-height: 1.3;
-        }
-
-        .chatbot-name {
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .chatbot-status {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .chatbot-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s ease;
-        }
-
-            .chatbot-close:hover {
-                background: rgba(255, 255, 255, 0.2);
-            }
-
-        /* Messages Area */
-        .chatbot-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .message {
-            display: flex;
-            max-width: 85%;
-        }
-
-        .bot-message {
-            align-self: flex-start;
-        }
-
-        .user-message {
-            align-self: flex-end;
-        }
-
-        .message-content {
-            background: white;
-            padding: 12px 16px;
-            border-radius: 18px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e1e5e9;
-        }
-
-        .user-message .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-        }
-
-        .message-sender {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            opacity: 0.8;
-        }
-
-        .message-text {
-            font-size: 14px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .message-time {
-            font-size: 10px;
-            margin-top: 5px;
-            opacity: 0.6;
-            text-align: right;
-        }
-
-        /* Input Area */
-        .chatbot-input {
-            padding: 20px;
-            background: white;
-            border-top: 1px solid #e1e5e9;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .chatbot-input .form-control {
-            border-radius: 25px;
-            border: 2px solid #e1e5e9;
-            padding: 12px 20px;
-            font-size: 14px;
-        }
-
-            .chatbot-input .form-control:focus {
-                border-color: #667eea;
-                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            }
-
-        .chatbot-input .btn {
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-        }
-
-        .send-icon {
-            font-size: 16px;
-        }
-
-        /* Animations */
+    
+        /* Hiệu ứng pulse */
         @keyframes pulse {
             0% {
                 transform: scale(1);
             }
-
+    
             50% {
                 transform: scale(1.05);
             }
-
+    
             100% {
                 transform: scale(1);
             }
         }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Scrollbar */
-        .chatbot-messages::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .chatbot-messages::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .chatbot-messages::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 10px;
-        }
-
-            .chatbot-messages::-webkit-scrollbar-thumb:hover {
-                background: #a8a8a8;
-            }
-
-        .chatbot-container,
-        .chatbot-messages,
-        .message-content,
-        .message-text,
-        .message-sender,
-        .message-time {
-            color: #333333 !important;
-        }
-
-        .user-message .message-content,
-        .user-message .message-text,
-        .user-message .message-sender,
-        .user-message .message-time {
-            color: white !important;
-        }
-
-        .chatbot-header,
-        .chatbot-name,
-        .chatbot-status {
-            color: white !important;
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .chatbot-widget {
-                bottom: 10px;
-                right: 10px;
-            }
-
-            .chatbot-container {
-                width: calc(100vw - 40px);
-                right: -10px;
-            }
-
-            .chatbot-toggle-btn {
-                padding: 10px 16px;
-            }
-
-            .chatbot-text {
-                font-size: 12px;
-            }
+    
+        .floating-btn {
+            animation: pulse 2s infinite;
         }
     </style>
-
-    <script>
-        // Chatbot Functions
-        function toggleChatbot() {
-            const container = document.getElementById('chatbotContainer');
-            container.classList.toggle('active');
-
-            // Focus input when opening
-            if (container.classList.contains('active')) {
-                setTimeout(() => {
-                    document.getElementById('chatbotInput').focus();
-                }, 300);
-            }
-        }
-
-        function getCurrentTime() {
-            return new Date().toLocaleTimeString('vi-VN', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        async function sendChatMessage() {
-            const input = document.getElementById('chatbotInput');
-            const message = input.value.trim();
-
-            if (!message) return;
-
-            const messagesContainer = document.getElementById('chatbotMessages');
-            const sendButton = document.getElementById('sendButton');
-
-            // Add user message
-            messagesContainer.innerHTML += `
-                <div class="message user-message">
-                    <div class="message-content">
-                        <div class="message-sender">Bạn</div>
-                        <div class="message-text">${message}</div>
-                        <div class="message-time">${getCurrentTime()}</div>
-                    </div>
-                </div>
-            `;
-
-            // Clear input and disable button
-            input.value = '';
-            sendButton.disabled = true;
-
-            // Scroll to bottom
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-            try {
-                // Call AI API
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: message })
-                });
-
-                const data = await response.json();
-
-                // Add AI response
-                setTimeout(() => {
-                    messagesContainer.innerHTML += `
-                        <div class="message bot-message">
-                            <div class="message-content">
-                                <div class="message-sender">AI Assistant</div>
-                                <div class="message-text">${data.response}</div>
-                                <div class="message-time">${getCurrentTime()}</div>
-                            </div>
-                        </div>
-                    `;
-
-                    // Scroll to bottom again
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 500);
-
-            } catch (error) {
-                messagesContainer.innerHTML += `
-                    <div class="message bot-message">
-                        <div class="message-content">
-                            <div class="message-sender">AI Assistant</div>
-                            <div class="message-text">Xin lỗi, có lỗi kết nối. Vui lòng thử lại.</div>
-                            <div class="message-time">${getCurrentTime()}</div>
-                        </div>
-                    </div>
-                `;
-            } finally {
-                // Re-enable button
-                sendButton.disabled = false;
-                input.focus();
-            }
-        }
-
-        // Enter to send message
-        document.getElementById('chatbotInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                sendChatMessage();
-            }
-        });
-
-        // Close chatbot when clicking outside
-        document.addEventListener('click', function (e) {
-            const widget = document.getElementById('chatbotWidget');
-            const container = document.getElementById('chatbotContainer');
-            const toggleBtn = document.querySelector('.chatbot-toggle-btn');
-
-            if (container.classList.contains('active') &&
-                !widget.contains(e.target) &&
-                !toggleBtn.contains(e.target)) {
-                container.classList.remove('active');
-            }
-        });
-    </script>
 </body>
 </html>
-
-
