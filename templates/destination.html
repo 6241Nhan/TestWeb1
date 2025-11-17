@@ -2,52 +2,99 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Khách sạn tại {{ city }}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <title>{{ info.name }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
-            background-color: #f9fafc;
-            font-family: "Segoe UI", sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            padding-top: 60px;
         }
 
-        .hotel-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            overflow: hidden;
+        .intro-text p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
             margin-bottom: 20px;
         }
 
-        .hotel-img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
+        .container {
+            max-width: 800px;
+        }
+
+        .user-rank {
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: inline-block;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .rank-dong {
+            background-color: #b0b0b0;
+        }
+
+        .rank-bac {
+            background-color: #c0c0ff;
+        }
+
+        .rank-vang {
+            background-color: #ffd700;
+            color: #333;
+        }
+
+        .rank-bachkim {
+            background-color: #e5e4e2;
+            color: #333;
         }
     </style>
 </head>
 <body>
-    <div class="container py-4">
-        <a href="{{ url_for('home') }}" class="btn btn-secondary mb-3">← Quay lại trang chủ</a>
-        <h1 class="mb-4">Khách sạn tại {{ city }}</h1>
+    <div class="container">
+        <h1 class="mb-3">{{ info.name }}</h1>
+        <img src="{{ info.image }}" alt="{{ info.name }}">
 
-        {% if hotels and hotels|length > 0 %}
-        <div class="row">
+        {% if session.get('username') %}
+        <div class="user-rank {% if session.user_rank == 'Đồng' %}rank-dong{% elif session.user_rank == 'Bạc' %}rank-bac{% elif session.user_rank == 'Vàng' %}rank-vang{% elif session.user_rank == 'Bạch kim' %}rank-bachkim{% endif %}">
+            Xin chào {{ session.username }} - Rank: {{ session.user_rank }}
+        </div>
+        {% endif %}
+
+        {% if info.intro %}
+        <div class="intro-text">
+            {% for paragraph in info.intro.splitlines() %}
+            <p>{{ paragraph }}</p>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>Chưa có bài giới thiệu cho địa điểm này.</p>
+        {% endif %}
+
+        {% if hotels %}
+        <h3 class="mt-4">Danh sách khách sạn</h3>
+        <div class="list-group">
             {% for hotel in hotels %}
-            <div class="col-md-4">
-                <div class="hotel-card">
-                    <img src="{{ hotel.image }}" alt="{{ hotel.name }}" class="hotel-img">
-                    <div class="p-3">
-                        <h5>{{ hotel.name }}</h5>
-                        <p class="text-muted">{{ hotel.city }} — ⭐ {{ hotel.stars }} sao</p>
-                        <h6 class="text-danger">{{ hotel.price }}₫ / đêm</h6>
-                        <a href="{{ url_for('hotel_detail', name=hotel.name|urlencode) }}" class="btn btn-primary w-100 mt-2">Xem chi tiết</a>
-                    </div>
-                </div>
+            <div class="list-group-item mb-2 rounded shadow-sm">
+                <h5>{{ hotel.name }}</h5>
+                <p>
+                    ⭐ {{ hotel.stars }} | Giá: {{ hotel.price }} VND
+                    {% if session.get('username') %}
+                    (Ưu đãi {{ hotel.discount }}% cho rank {{ session.user_rank }})
+                    {% endif %}
+                </p>
+                <p>{{ hotel.desc }}</p>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p>Hiện chưa có khách sạn nào tại {{ city }}.</p>
+        <p>Chưa có khách sạn cho địa điểm này.</p>
         {% endif %}
     </div>
 </body>
