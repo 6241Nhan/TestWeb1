@@ -212,11 +212,7 @@ season_rules = {
     'winter': lambda hotel: 1.0 if ('heating' in hotel['amenities'] or 'spa' in hotel['amenities']) else 0.4
 }
 
-# ==============================
-# ĐỌC CSV
-# ==============================
-hotels_df = pd.read_csv("hotels.csv")
-events_df = pd.read_csv("events.csv")
+
 
 # ==============================
 # HÀM TÍNH ĐIỂM
@@ -567,6 +563,16 @@ def hotel_detail(name):
                 'description': ev.get('description', ''),
                 'total_score': round(total_score, 3)
             })
+    nearby_events = sorted(nearby_events, key=lambda x: x['total_score'], reverse=True)[:5]
+
+    return render_template(
+        'hotel_detail.html',
+        hotel=hotel,
+        avg_rating=avg_rating,
+        features=features,
+        rooms=rooms,
+        nearby_events=nearby_events
+    )
 
 
     # === THÊM GALLERY VÀO KHÁCH SẠN ===
@@ -918,6 +924,7 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
