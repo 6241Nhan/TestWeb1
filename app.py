@@ -491,7 +491,32 @@ def recommend():
 
     return render_template('result.html', hotels=results)
 
+app.route('/recommend-hotels')
+def recommend_hotels():
+    city = request.args.get('city', 'Hanoi')
+    today = datetime.today()
+    current_month = today.month
+    season = month_to_season(current_month)
+    current_weather = {'condition': 'sunny'}  # có thể replace bằng API thời tiết
 
+    results = []
+    for _, h in hotels_df.iterrows():
+        s_event = score_event(h, events_df, city, today)
+        s_weather = score_weather(h, current_weather['condition'])
+        s_season = score_season(h, season)
+        total = 0.4*s_event + 0.3*s_weather + 0.3*s_season
+        results.append({
+            'Hotel': h['name'],
+            'Price': h['price'],
+            'Stars': h['stars'],
+            'Score_Event': round(s_event,3),
+            'Score_Weather': round(s_weather,3),
+            'Score_Season': round(s_season,3),
+            'Total_Score': round(total,3)
+        })
+
+    df_result = pd.DataFrame(results).sort_values(by='Total_Score', ascending=False).head(5)
+    return render_template('recommend_hotels.html', hotels=df_result.to_dict(orient='records'), city=city)
 # === TRANG CHI TIẾT ===
 @app.route('/hotel/<name>')
 def hotel_detail(name):
@@ -881,6 +906,7 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
