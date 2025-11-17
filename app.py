@@ -525,55 +525,6 @@ def hotel_detail(name):
         {"type": "Phòng tổng thống", "price": round(float(hotel.get('price', 0)) * 2.5)},
     ]
 
-    # =========================
-    # Gợi ý event gần khách sạn
-    # =========================
-    nearby_events = []
-    try:
-        hotel_lat = float(hotel.get('lat', 0))
-        hotel_lon = float(hotel.get('lon', 0))
-    except:
-        hotel_lat, hotel_lon = 0, 0
-
-    selected_city = hotel.get('city', '')
-    reference_date = datetime.today()
-    current_weather = {'condition': 'sunny'}
-    season = month_to_season(reference_date.month)
-
-    for _, ev in events_df.iterrows():
-        if ev.get('city', '').lower() != selected_city.lower():
-            continue
-        try:
-            ev_lat = float(ev.get('lat', 0))
-            ev_lon = float(ev.get('lon', 0))
-        except:
-            continue  # bỏ qua event không hợp lệ
-
-        dist = haversine(hotel_lat, hotel_lon, ev_lat, ev_lon)
-        if dist <= 5:  # event trong bán kính 5 km
-            s_event = 1 / (dist + 1)
-            s_weather = weather_rules.get(current_weather['condition'], weather_rules['default'])({'amenities': []})
-            s_season = season_rules.get(season, lambda h: 0.5)({'amenities': [], 'tags': []})
-            total_score = 0.4*s_event + 0.3*s_weather + 0.3*s_season
-
-            nearby_events.append({
-                'name': ev.get('name', 'Sự kiện'),
-                'type': ev.get('type', 'Sự kiện'),
-                'distance_km': round(dist, 2),
-                'description': ev.get('description', ''),
-                'total_score': round(total_score, 3)
-            })
-    nearby_events = sorted(nearby_events, key=lambda x: x['total_score'], reverse=True)[:5]
-
-    return render_template(
-        'hotel_detail.html',
-        hotel=hotel,
-        avg_rating=avg_rating,
-        features=features,
-        rooms=rooms,
-        nearby_events=nearby_events
-    )
-
 
     # === THÊM GALLERY VÀO KHÁCH SẠN ===
     hotel['gallery'] = get_hotel_gallery(hotel['name'])
@@ -924,6 +875,7 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
