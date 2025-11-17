@@ -568,18 +568,6 @@ def hotel_detail(name):
                 'total_score': round(total_score, 3)
             })
 
-    # Sắp xếp theo điểm gợi ý cao nhất, lấy tối đa 5 event
-    nearby_events = sorted(nearby_events, key=lambda x: x['total_score'], reverse=True)[:5]
-
-    return render_template(
-        'hotel_detail.html',
-        hotel=hotel,
-        avg_rating=avg_rating,
-        features=features,
-        rooms=rooms,
-        nearby_events=nearby_events
-    )
-
 
     # === THÊM GALLERY VÀO KHÁCH SẠN ===
     hotel['gallery'] = get_hotel_gallery(hotel['name'])
@@ -930,6 +918,7 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
