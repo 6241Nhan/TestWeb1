@@ -495,7 +495,6 @@ def recommend():
 @app.route('/hotel/<name>')
 def hotel_detail(name):
     hotels_df = read_csv_safe(HOTELS_CSV)
-    events_df = read_csv_safe(EVENTS_CSV)
 
     # Xử lý cột rooms_available và status
     if 'rooms_available' not in hotels_df.columns:
@@ -537,6 +536,7 @@ def hotel_detail(name):
     # Thêm phần recommend event
     # =========================
     # Giả sử bạn đã load events_df từ CSV
+    events_df = read_csv_safe(EVENTS_CSV)
     nearby_events = []
     hotel_lat = hotel.get('lat')
     hotel_lon = hotel.get('lon')
@@ -927,6 +927,7 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
