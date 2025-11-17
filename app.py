@@ -491,7 +491,7 @@ def recommend():
 
     return render_template('result.html', hotels=results)
 
-app.route('/recommend-hotels')
+@app.route('/recommend-hotels')
 def recommend_hotels():
     city = request.args.get('city', 'Hanoi')
     today = datetime.today()
@@ -906,6 +906,7 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
