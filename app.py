@@ -108,13 +108,15 @@ def nearby_events(hotel_row, radius_km=5):
 
     # Sắp xếp theo điểm
     return sorted(nearby, key=lambda x: x['total_score'], reverse=True)
+
+# Ví dụ: hiện sự kiện gần tất cả khách sạn
 for _, hotel in hotels_df.iterrows():
-   events = nearby_events(hotel)
-       if events:
-           print(f"Khách sạn {hotel['name']} có các sự kiện gần đó:")
-           for ev in events[:5]:
-               print(f"- {ev['name']} ({ev['type']}), cách {ev['distance_km']} km, mô tả: {ev['description']}")
-           print()
+    events = nearby_events(hotel)
+    if events:
+        print(f"Khách sạn {hotel['name']} có các sự kiện gần đó:")
+        for ev in events[:5]:
+            print(f"- {ev['name']} ({ev['type']}), cách {ev['distance_km']} km, mô tả: {ev['description']}")
+        print()
 # -------------------------
 # ROUTES
 # -------------------------
@@ -890,6 +892,7 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
