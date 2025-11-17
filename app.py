@@ -491,37 +491,12 @@ def recommend():
 
     return render_template('result.html', hotels=results)
 
-@app.route('/recommend-hotels')
-def recommend_hotels():
-    city = request.args.get('city', 'Hanoi')
-    today = datetime.today()
-    current_month = today.month
-    season = month_to_season(current_month)
-    current_weather = {'condition': 'sunny'}  # có thể replace bằng API thời tiết
-
-    results = []
-    for _, h in hotels_df.iterrows():
-        s_event = score_event(h, events_df, city, today)
-        s_weather = score_weather(h, current_weather['condition'])
-        s_season = score_season(h, season)
-        total = 0.4*s_event + 0.3*s_weather + 0.3*s_season
-        results.append({
-            'Hotel': h['name'],
-            'Price': h['price'],
-            'Stars': h['stars'],
-            'Score_Event': round(s_event,3),
-            'Score_Weather': round(s_weather,3),
-            'Score_Season': round(s_season,3),
-            'Total_Score': round(total,3)
-        })
-
-    df_result = pd.DataFrame(results).sort_values(by='Total_Score', ascending=False).head(5)
-    return render_template('recommend_hotels.html', hotels=df_result.to_dict(orient='records'), city=city)
 # === TRANG CHI TIẾT ===
 @app.route('/hotel/<name>')
 def hotel_detail(name):
     hotels_df = read_csv_safe(HOTELS_CSV)
 
+    # Xử lý cột rooms_available và status
     if 'rooms_available' not in hotels_df.columns:
         hotels_df['rooms_available'] = 0
     hotels_df['rooms_available'] = hotels_df['rooms_available'].astype(int)
@@ -556,6 +531,60 @@ def hotel_detail(name):
         {"type": "Phòng đôi", "price": round(float(hotel.get('price', 0)) * 1.5)},
         {"type": "Phòng tổng thống", "price": round(float(hotel.get('price', 0)) * 2.5)},
     ]
+
+    # =========================
+    # Thêm phần recommend hotel
+    # =========================
+    # Giả sử bạn đã load events_df từ CSV
+    reference_date = datetime.today()
+    current_weather = {'condition': 'sunny'}  # tạm thời, có thể lấy từ API
+    season = month_to_season(reference_date.month)
+    selected_city = hotel.get('city', '')
+
+    recommend_list = []
+    for _, h in hotels_df.iterrows():
+        if h['name'] == name:
+            continue  # bỏ qua khách sạn hiện tại
+        # score event
+        nearest_event = None
+        min_days = None
+        for _, ev in events_df.iterrows():
+            if ev['city'].lower() != selected_city.lower():
+                continue
+            ev_date = datetime.fromisoformat(str(ev['date']))
+            delta_days = (ev_date - reference_date).days
+            if delta_days >= -1 and (min_days is None or delta_days < min_days):
+                nearest_event = ev
+                min_days = delta_days
+        s_event = 1 / (haversine(h['lat'], h['lon'], nearest_event['lat'], nearest_event['lon']) + 1) if nearest_event else 0.1
+
+        # score weather
+        amenities = h['amenities'].split(';')
+        s_weather = weather_rules.get(current_weather['condition'], weather_rules['default'])({'amenities': amenities})
+
+        # score season
+        tags = h['tags'].split(';')
+        s_season = season_rules.get(season, lambda h: 0.5)({'amenities': amenities, 'tags': tags})
+
+        total = 0.4*s_event + 0.3*s_weather + 0.3*s_season
+        recommend_list.append({
+            'name': h['name'],
+            'price': h['price'],
+            'stars': h['stars'],
+            'total_score': round(total, 3)
+        })
+
+    # Top 3 khách sạn gợi ý
+    recommend_list = sorted(recommend_list, key=lambda x: x['total_score'], reverse=True)[:3]
+
+    return render_template(
+        'hotel_detail.html',
+        hotel=hotel,
+        avg_rating=avg_rating,
+        features=features,
+        rooms=rooms,
+        recommend_hotels=recommend_list
+    )
 
     # === THÊM GALLERY VÀO KHÁCH SẠN ===
     hotel['gallery'] = get_hotel_gallery(hotel['name'])
@@ -906,6 +935,7 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
