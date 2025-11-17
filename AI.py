@@ -47,21 +47,40 @@ events_df = pd.read_csv("events.csv")
 # =============================
 # HÀM TÍNH ĐIỂM
 # =============================
-def score_event(hotel_row, events_df, ref_date):
+def score_event(hotel_row, events_df, ref_date, selected_city):
     nearest_event = None
     min_days = None
+
     for _, ev in events_df.iterrows():
         if ev['city'] != selected_city:
             continue
-        ev_date = datetime.fromisoformat(str(ev['date']))
-        delta_days = (ev_date - ref_date).days
-        if delta_days >= -1 and (min_days is None or delta_days < min_days):
-            nearest_event = ev
+
+        # lấy ngày bắt đầu sự kiện
+        start = datetime.fromisoformat(str(ev['start_date']))
+        end = datetime.fromisoformat(str(ev['end_date']))
+
+        # sự kiện đang diễn ra hoặc trong tương lai 30 ngày
+        if start <= ref_date <= end:
+            delta_days = 0
+        else:
+            delta_days = (start - ref_date).days
+
+        if delta_days < 0 or delta_days > 30:
+            continue
+
+        if min_days is None or delta_days < min_days:
             min_days = delta_days
+            nearest_event = ev
+
     if nearest_event is not None:
-        dist = haversine(hotel_row['lat'], hotel_row['lon'], nearest_event['lat'], nearest_event['lon'])
+        dist = haversine(
+            hotel_row['lat'], hotel_row['lon'],
+            nearest_event['lat'], nearest_event['lon']
+        )
         return 1 / (dist + 1)
+
     return 0.1
+
 
 def score_weather(hotel_row, condition):
     amenities = hotel_row['amenities'].split(';')
@@ -96,3 +115,4 @@ for _, h in hotels_df.iterrows():
 df_result = pd.DataFrame(results).sort_values(by='Total_Score', ascending=False)
 print("🔹 Goi y khach san (Top 5):")
 print(df_result.head(5).to_string(index=False))
+
