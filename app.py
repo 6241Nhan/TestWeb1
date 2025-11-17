@@ -537,45 +537,45 @@ def hotel_detail(name):
     # =========================
     # Giả sử bạn đã load events_df từ CSV
     nearby_events = []
-hotel_lat = hotel.get('lat')
-hotel_lon = hotel.get('lon')
-selected_city = hotel.get('city', '')
+    hotel_lat = hotel.get('lat')
+    hotel_lon = hotel.get('lon')
+    selected_city = hotel.get('city', '')
 
-reference_date = datetime.today()
-current_weather = {'condition': 'sunny'}
-season = month_to_season(reference_date.month)
+    reference_date = datetime.today()
+    current_weather = {'condition': 'sunny'}
+    season = month_to_season(reference_date.month)
 
-for _, ev in events_df.iterrows():
-    if ev['city'].lower() != selected_city.lower():
-        continue
+    for _, ev in events_df.iterrows():
+        if ev['city'].lower() != selected_city.lower():
+            continue
 
-    dist = haversine(hotel_lat, hotel_lon, ev['lat'], ev['lon'])
-    if dist <= 5:  # event trong bán kính 5 km
-        # Tính điểm gợi ý dựa trên khoảng cách + thời tiết + mùa
-        s_event = 1 / (dist + 1)
-        s_weather = weather_rules.get(current_weather['condition'], weather_rules['default'])({'amenities': []})
-        s_season = season_rules.get(season, lambda h: 0.5)({'amenities': [], 'tags': []})
-        total_score = 0.4*s_event + 0.3*s_weather + 0.3*s_season
+        dist = haversine(hotel_lat, hotel_lon, ev['lat'], ev['lon'])
+        if dist <= 5:  # event trong bán kính 5 km
+            # Tính điểm gợi ý dựa trên khoảng cách + thời tiết + mùa
+            s_event = 1 / (dist + 1)
+            s_weather = weather_rules.get(current_weather['condition'], weather_rules['default'])({'amenities': []})
+            s_season = season_rules.get(season, lambda h: 0.5)({'amenities': [], 'tags': []})
+            total_score = 0.4*s_event + 0.3*s_weather + 0.3*s_season
 
-        nearby_events.append({
-            'name': ev['name'],
-            'type': ev.get('type', 'Sự kiện'),
-            'distance_km': round(dist, 2),
-            'description': ev.get('description', ''),
-            'total_score': round(total_score, 3)
-        })
+            nearby_events.append({
+                'name': ev['name'],
+                'type': ev.get('type', 'Sự kiện'),
+                'distance_km': round(dist, 2),
+                'description': ev.get('description', ''),
+                'total_score': round(total_score, 3)
+            })
 
 # Sắp xếp theo điểm gợi ý cao nhất, hoặc khoảng cách gần nhất
-nearby_events = sorted(nearby_events, key=lambda x: x['total_score'], reverse=True)[:5]
+    nearby_events = sorted(nearby_events, key=lambda x: x['total_score'], reverse=True)[:5]
 
-return render_template(
-    'hotel_detail.html',
-    hotel=hotel,
-    avg_rating=avg_rating,
-    features=features,
-    rooms=rooms,
-    nearby_events=nearby_events  # truyền vào template
-)
+    return render_template(
+        'hotel_detail.html',
+        hotel=hotel,
+        avg_rating=avg_rating,
+        features=features,
+        rooms=rooms,
+        nearby_events=nearby_events  # truyền vào template
+    )
 
     # === THÊM GALLERY VÀO KHÁCH SẠN ===
     hotel['gallery'] = get_hotel_gallery(hotel['name'])
@@ -926,6 +926,7 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
