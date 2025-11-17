@@ -1,31 +1,217 @@
-﻿import pandas as pd
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, session
 import re
-from datetime import datetime
-from flask_mail import Mail, Message  # thêm thư viện mail
 import tempfile
-from routes.chatbot import init_chatbot_routes
-# === HÀM LẤY DANH SÁCH ẢNH THEO KHÁCH SẠN ===
+from datetime import datetime
+import pandas as pd
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_mail import Mail, Message   # nếu dùng mail
+from routes.chatbot import init_chatbot_routes  # nếu có file routes/chatbot.py
+from flask import session
+from werkzeug.security import generate_password_hash, check_password_hash
+
+# -------------------------
+# Tạo app Flask
+# -------------------------
+app = Flask(__name__)
+app.secret_key = "your_secret_key_here"
+
+# -------------------------
+# USER DATABASE (tạm thời dict)
+# -------------------------
+users_db = {}
+
+# -------------------------
+# HÀM HỖ TRỢ
+# -------------------------
+def get_user_rank(total_spent):
+    if total_spent >= 20_000_000:
+        return "Bạch kim"
+    elif total_spent >= 8_000_000:
+        return "Vàng"
+    elif total_spent >= 3_000_000:
+        return "Bạc"
+    else:
+        return "Đồng"
+
+def get_discounted_price(rank, base_price):
+    discount = {"Đồng": 0, "Bạc": 0.05, "Vàng": 0.1, "Bạch kim": 0.2}
+    return int(base_price * (1 - discount.get(rank, 0)))
+
+# -------------------------
+# ROUTES
+# -------------------------
+
+# Trang chủ + danh sách khách sạn
+@app.route("/")
+def index():
+    hotels = [
+        {"name": "Hotel A", "city": "Đà Nẵng", "price": 3000000},
+        {"name": "Hotel B", "city": "Hà Nội", "price": 1500000},
+        {"name": "Hotel C", "city": "Hồ Chí Minh", "price": 5000000},
+    ]
+    user_rank = session.get("user_rank", "Đồng")
+    for h in hotels:
+        h["price_after_discount"] = get_discounted_price(user_rank, h["price"])
+    return render_template("index.html", hotels=hotels, user_rank=user_rank)
+
+# Đăng ký
+@app.route("/register", methods=["GET","POST"])
+def register():
+    if request.method == "POST":
+        username = request.form["username"].strip()
+        if username in users_db:
+            flash("Tài khoản đã tồn tại!", "danger")
+            return redirect(url_for("register"))
+
+        users_db[username] = {
+            "password": generate_password_hash(request.form["password"]),
+            "full_name": request.form.get("fullname", ""),
+            "dob": request.form.get("birthdate", ""),
+            "gender": request.form.get("gender", ""),
+            "email": request.form.get("email", ""),
+            "phone": request.form.get("phone", ""),
+            "total_spent": 0,
+            "history": []
+        }
+        flash("Đăng ký thành công! Hãy đăng nhập.", "success")
+        return redirect(url_for("login"))
+    return render_template("register.html")
+
+# Đăng nhập
+@app.route("/login", methods=["GET","POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"].strip()
+        password = request.form["password"]
+        user = users_db.get(username)
+        if user and check_password_hash(user["password"], password):
+            session["user"] = username
+            session["user_rank"] = get_user_rank(user["total_spent"])
+            flash("Đăng nhập thành công!", "success")
+            return redirect(url_for("profile"))
+        flash("Sai tài khoản hoặc mật khẩu!", "danger")
+        return redirect(url_for("login"))
+    return render_template("login.html")
+
+# Đăng xuất
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Đã đăng xuất!", "success")
+    return redirect(url_for("index"))
+
+# Trang cá nhân
+@app.route("/profile")
+def profile():
+    if "user" not in session:
+        flash("Bạn cần đăng nhập để xem thông tin.", "danger")
+        return redirect(url_for("login"))
+
+    username = session["user"]
+    user = users_db[username]
+
+    # Tính tuổi từ dob
+    dob = user.get("dob","")
+    age = "-"
+    if dob:
+        birth = datetime.strptime(dob, "%Y-%m-%d")
+        age = int((datetime.now() - birth).days / 365.25)
+
+    return render_template("profile.html", user=user, age=age, user_rank=session.get("user_rank","Đồng"))
+
+# Đặt phòng
+@app.route("/book/<hotel_name>/<int:price>", methods=["POST"])
+def book(hotel_name, price):
+    if "user" not in session:
+        flash("Bạn cần đăng nhập để đặt phòng.", "danger")
+        return redirect(url_for("login"))
+
+    username = session["user"]
+    users_db[username]["total_spent"] += price
+    users_db[username]["history"].append({
+        "name": hotel_name,
+        "price": price,
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+    })
+    session["user_rank"] = get_user_rank(users_db[username]["total_spent"])
+    flash(f"Đặt phòng {hotel_name} thành công! Giá: {price} VND", "success")
+    return redirect(url_for("index"))
+
+# ========================================
+
+
+
+# === Hàm lấy dữ liệu ảnh khách sạn (đã có sẵn trong code bạn) ===
 def get_hotel_gallery(hotel_name):
-    """
-    Trả về danh sách đường dẫn ảnh trong folder static/images/hotels/<hotel_name> (ngoại trừ ảnh chính)
-    """
     folder_path = os.path.join("static", "images", "hotels", hotel_name)
     if not os.path.exists(folder_path):
         return []
     files = os.listdir(folder_path)
-    # Loại bỏ ảnh chính banner (main.jpg hoặc main.png)
-    gallery = [
+    return [
         f"/static/images/hotels/{hotel_name}/{f}"
-        for f in files if f.lower() not in ["main.jpg", "main.png"]
+        for f in files if f.lower() not in ["main.jng", "main.png"]
     ]
-    return gallery
+# Hàm đọc bài giới thiệu từ folder static/text/giới_thiệu
+def read_intro(city_name):
+    """
+    city_name: tên chuẩn, ví dụ 'Hà Nội', 'TP Hồ Chí Minh', 'Đà Nẵng', 'Nha Trang'
+    """
+    # map city name -> tên file
+    file_map = {
+        "Hà Nội": "hanoi.txt",
+        "TP Hồ Chí Minh": "hochiminh.txt",
+        "Đà Nẵng": "danang.txt",
+        "Nha Trang": "nhatrang.txt"
+    }
+
+    filename = file_map.get(city_name)
+    if not filename:
+        return "❌ Chưa có bài giới thiệu cho địa danh này."
+
+    folder_path = os.path.join("static", "text", "giới thiệu")
+    file_path = os.path.join(folder_path, filename)
+
+    if not os.path.exists(file_path):
+        return "❌ File giới thiệu chưa được tạo."
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    return content
 
 
-app = Flask(__name__)
-app.secret_key = "your_secret_key_here"
 
+@app.route("/destinations/<city>")
+def destination(city):
+    city = city.replace("%20", " ").strip()
+
+    # Dữ liệu các địa danh
+    data = {
+        "Ha Noi": {"name": "Hà Nội", "desc": "...", "image": "/static/images/destinations/cities/hanoi.png"},
+        "Ho Chi Minh": {"name": "TP Hồ Chí Minh", "desc": "...", "image": "/static/images/destinations/cities/hcm.png"},
+        "Da Nang": {"name": "Đà Nẵng", "desc": "...", "image": "/static/images/destinations/cities/danang.png"},
+        "Nha Trang": {"name": "Nha Trang", "desc": "...", "image": "/static/images/destinations/cities/nhatrang.png"}
+    }
+
+    key_map = {
+        "hanoi": "Ha Noi",
+        "danang": "Da Nang",
+        "nhatrang": "Nha Trang",
+        "hochiminh": "Ho Chi Minh"
+    }
+
+    city_key = data.get(city) or data.get(key_map.get(city.lower(), ""), None)
+    if not city_key:
+        return "❌ Không tìm thấy địa điểm này", 404
+
+    info = city_key
+    # đọc bài giới thiệu
+    info["intro"] = read_intro(info["name"])
+
+    return render_template("destination.html", info=info)
+
+
+# khởi tạo chatbot (nếu có)
 init_chatbot_routes(app)
 
 # -------------------------
