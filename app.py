@@ -495,6 +495,7 @@ def recommend():
 @app.route('/hotel/<name>')
 def hotel_detail(name):
     hotels_df = read_csv_safe(HOTELS_CSV)
+    events_df = read_csv_safe(EVENTS_CSV)
 
     # Xử lý cột rooms_available và status
     if 'rooms_available' not in hotels_df.columns:
@@ -926,6 +927,7 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
