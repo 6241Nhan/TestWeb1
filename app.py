@@ -38,6 +38,97 @@ def get_discounted_price(rank, base_price):
     discount = {"Đồng": 0, "Bạc": 0.05, "Vàng": 0.1, "Bạch kim": 0.2}
     return int(base_price * (1 - discount.get(rank, 0)))
 
+
+# ======================
+#   Hàm tính khoảng cách
+# ======================
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+
+    a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+
+# ======================
+#   Load CSV
+# ======================
+hotels_df = pd.read_csv("hotels.csv")
+events_df = pd.read_csv("events.csv")
+
+# ======================
+#   Season detect
+# ======================
+def month_to_season(month):
+    if month in (3,4,5): return "spring"
+    if month in (6,7,8): return "summer"
+    if month in (9,10,11): return "autumn"
+    return "winter"
+
+# ======================
+#   WEATHER RULE
+# ======================
+weather_rules = {
+    'sunny': lambda am: 1.0 if ('pool_outdoor' in am or 'beach_nearby' in am) else 0.3,
+    'rain':  lambda am: 1.0 if ('indoor' in am or 'spa' in am or 'near_center' in am) else 0.3,
+    'cold':  lambda am: 1.0 if ('heating' in am or 'near_cafe' in am) else 0.4,
+    'hot':   lambda am: 1.0 if ('pool_outdoor' in am or 'aircon' in am) else 0.4,
+    'default': lambda am: 0.5
+}
+
+# ======================
+#   SEASON RULE
+# ======================
+season_rules = {
+    'spring': lambda am, tg: 1.0 if 'garden_view' in am or 'romantic' in tg else 0.5,
+    'summer': lambda am, tg: 1.0 if ('beach_nearby' in am or 'pool_outdoor' in am) else 0.4,
+    'autumn': lambda am, tg: 1.0 if 'city_view' in am or 'near_center' in am else 0.5,
+    'winter': lambda am, tg: 1.0 if ('heating' in am or 'spa' in am) else 0.4
+}
+
+# ======================
+#   Event scoring
+# ======================
+def score_event(hotel_row, events_df, user_city, ref_date):
+    nearest_event = None
+    min_days = None
+
+    for _, ev in events_df.iterrows():
+        if ev["city"].lower() != user_city.lower():
+            continue
+
+        ev_date = datetime.fromisoformat(str(ev["date"]))
+        delta = (ev_date - ref_date).days
+
+        if delta >= -1 and (min_days is None or delta < min_days):
+            nearest_event = ev
+            min_days = delta
+
+    if nearest_event is not None:
+        dist = haversine(hotel_row["lat"], hotel_row["lon"], nearest_event["lat"], nearest_event["lon"])
+        return 1 / (dist + 1)
+
+    return 0.1
+
+# ======================
+#   Weather scoring
+# ======================
+def score_weather(hotel_row, condition):
+    amenities = hotel_row["amenities"].split(";")
+    rule = weather_rules.get(condition, weather_rules["default"])
+    return rule(amenities)
+
+# ======================
+#   Season scoring
+# ======================
+def score_season(hotel_row, season_name):
+    amenities = hotel_row["amenities"].split(";")
+    tags = hotel_row["tags"].split(";")
+    rule = season_rules.get(season_name, lambda a, t: 0.5)
+    return rule(amenities, tags)
+
 # -------------------------
 # ROUTES
 # -------------------------
@@ -737,6 +828,53 @@ def admin_bookings():
     return render_template('admin_bookings.html', bookings=bookings)
 
 
+# ======================
+#   Chatbot API
+# ======================
+@app.route("/chat", methods=["POST"])
+def chat():
+    msg = request.json.get("message", "").lower()
+
+    # Format user message (rất đơn giản)
+    # Ví dụ:
+    # "gợi ý khách sạn tại hcm tháng 6 thời tiết sunny ngày 2025-06-01"
+    try:
+        words = msg.split()
+
+        city = words[words.index("tại") + 1]
+        month = int(words[words.index("tháng") + 1])
+        condition = words[words.index("thời") + 2]    # sunny / rain / hot / cold
+        date_str = words[-1]
+        reference_date = datetime.fromisoformat(date_str)
+
+    except:
+        return jsonify({
+            "reply": "❌ Sai format!\nVí dụ: gợi ý khách sạn tại HCM tháng 6 thời tiết sunny ngày 2025-06-01"
+        })
+
+    season = month_to_season(month)
+
+    results = []
+
+    for _, h in hotels_df.iterrows():
+        s_event = score_event(h, events_df, city, reference_date)
+        s_weather = score_weather(h, condition)
+        s_season = score_season(h, season)
+        total = 0.4*s_event + 0.3*s_weather + 0.3*s_season
+
+        results.append((h, total))
+
+    results.sort(key=lambda x: x[1], reverse=True)
+
+    reply = f"✨ **Top khách sạn tại {city} tháng {month}**\n"
+    reply += f"- Thời tiết: {condition}\n"
+    reply += f"- Mùa: {season}\n\n"
+
+    for h, score in results[:5]:
+        reply += f"🏨 {h['name']} — {h['price']} VND — Score {round(score, 3)}\n"
+
+    return jsonify({"reply": reply})
+
 # === Xác nhận đặt phòng ===
 @app.route('/admin/bookings/confirm/<booking_time>')
 def admin_confirm_booking(booking_time):
@@ -813,5 +951,6 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
