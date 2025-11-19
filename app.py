@@ -1,3 +1,4 @@
+
 import os
 import re
 import tempfile
@@ -36,87 +37,7 @@ def get_user_rank(total_spent):
 def get_discounted_price(rank, base_price):
     discount = {"Đồng": 0, "Bạc": 0.05, "Vàng": 0.1, "Bạch kim": 0.2}
     return int(base_price * (1 - discount.get(rank, 0)))
-def haversine(lat1, lon1, lat2, lon2):
-    R = 6371.0
-    phi1, phi2 = math.radians(lat1), math.radians(lat2)
-    dphi, dlambda = math.radians(lat2 - lat1), math.radians(lon2 - lon1)
-    a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
-    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
 
-# Chuyển tháng -> mùa
-def month_to_season(month):
-    if month in (3,4,5): return 'spring'
-    if month in (6,7,8): return 'summer'
-    if month in (9,10,11): return 'autumn'
-    return 'winter'
-
-# Rule thời tiết & mùa
-weather_rules = {
-    'sunny': lambda hotel: 1.0 if ('pool_outdoor' in hotel or 'beach_nearby' in hotel) else 0.3,
-    'rain':  lambda hotel: 1.0 if ('indoor' in hotel or 'spa' in hotel or 'near_center' in hotel) else 0.3,
-    'cold':  lambda hotel: 1.0 if ('heating' in hotel or 'near_cafe' in hotel) else 0.4,
-    'hot':   lambda hotel: 1.0 if ('pool_outdoor' in hotel or 'aircon' in hotel) else 0.4,
-    'default': lambda hotel: 0.5
-}
-
-season_rules = {
-    'spring': lambda hotel: 1.0 if 'garden_view' in hotel or 'romantic' in hotel else 0.5,
-    'summer': lambda hotel: 1.0 if 'beach_nearby' in hotel or 'pool_outdoor' in hotel else 0.4,
-    'autumn': lambda hotel: 1.0 if 'city_view' in hotel or 'near_center' in hotel else 0.5,
-    'winter': lambda hotel: 1.0 if 'heating' in hotel or 'spa' in hotel else 0.4
-}
-
-# Load dữ liệu
-hotels_df = pd.read_csv("hotels.csv")
-events_df = pd.read_csv("events.csv")
-
-# Tham số chung
-reference_date = datetime.today()
-current_weather = {'condition': 'sunny'}
-season = month_to_season(reference_date.month)
-
-# Hàm tìm event gần khách sạn
-def nearby_events(hotel_row, radius_km=5):
-    hotel_lat = float(hotel_row['lat'])
-    hotel_lon = float(hotel_row['lon'])
-    city = hotel_row['city']
-
-    nearby = []
-    for _, ev in events_df.iterrows():
-        if ev.get('city','').lower() != city.lower():
-            continue
-        try:
-            ev_lat = float(ev['lat'])
-            ev_lon = float(ev['lon'])
-        except:
-            continue
-
-        dist = haversine(hotel_lat, hotel_lon, ev_lat, ev_lon)
-        if dist <= radius_km:
-            s_event = 1 / (dist + 1)
-            s_weather = weather_rules.get(current_weather['condition'], weather_rules['default'])([])
-            s_season = season_rules.get(season, lambda h: 0.5)([])
-            total_score = 0.4*s_event + 0.3*s_weather + 0.3*s_season
-
-            nearby.append({
-                'name': ev.get('name', 'Sự kiện'),
-                'type': ev.get('type', 'Sự kiện'),
-                'distance_km': round(dist,2),
-                'description': ev.get('description',''),
-                'total_score': round(total_score,3)
-            })
-
-    # Sắp xếp theo điểm
-    return sorted(nearby, key=lambda x: x['total_score'], reverse=True)
-
-# Ví dụ: hiện sự kiện gần tất cả khách sạn
-for _, hotel in hotels_df.iterrows():
-    events = nearby_events(hotel)
-    if events:
-        print(f"Khách sạn {hotel['name']} có các sự kiện gần đó:")
-        for ev in events[:5]:
-            print(f"- {ev['name']} ({ev['type']}), cách {ev['distance_km']} km, mô tả: {ev['description']}")
-        print()
 # -------------------------
 # ROUTES
 # -------------------------
@@ -892,10 +813,5 @@ def update_hotel_status(name, status):
 # === KHỞI CHẠY APP ===
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
 
 
